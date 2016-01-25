@@ -5,7 +5,10 @@ import React from 'react';
 class Calendar extends React.Component {
 	componentDidMount() {
 		const {calendar} = this.refs;
-		$(calendar).fullCalendar({selectable:true});
+		$(calendar).fullCalendar({
+			selectable: true,
+			eventSources: this.props.eventSources
+		});
 	}
 
 	componentWillUnmount() {
