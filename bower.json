@@ -1,0 +1,23 @@
+{
+  "name": "coach_scheduler",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Carl Bolstad <cbolstad@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/carleric/appt_scheduler",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "www/lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fullcalendar": "~2.6.0"
+  }
+}
