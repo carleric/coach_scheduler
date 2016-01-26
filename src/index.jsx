@@ -34,6 +34,11 @@ const coaches = [
 	];
 
 const eventSources = coaches.map(function(coach) {
+	coach.availability.events = coach.availability.events.map(function(event) {
+		event.title = coach.name;
+		//event.rendering = 'background';
+		return event;
+	});
 	return coach.availability;
 });
 

@@ -6,7 +6,8 @@ var itemStyle = {
 			height: '1em', 
 			float: 'left', 
 			marginLeft: '10px', 
-			marginRight: '10px'
+			marginRight: '10px',
+			borderRadius: '4px'
 		};
 
  class CoachList extends React.Component {

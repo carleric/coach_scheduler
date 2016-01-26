@@ -2,8 +2,8 @@
 	margin: 0;
 }
 
-.coachList {
-
+.coachList ul{
+	padding-left: 0;
 }
 
 .coachList li {
