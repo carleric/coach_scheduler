@@ -1,0 +1,19 @@
+.nomargin {
+	margin: 0;
+}
+
+.coachList {
+
+}
+
+.coachList li {
+	list-style-type: none;
+}
+
+.colorLegend {
+	width: '1em', 
+	height: '1em', 
+	float: 'left', 
+	marginLeft: '10px', 
+	marginRight: '10px'
+}
