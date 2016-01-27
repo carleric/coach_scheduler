@@ -1,5 +1,5 @@
 import React from 'react';
-
+import _ from 'lodash';
 
 
 class Calendar extends React.Component {
@@ -71,6 +71,25 @@ class Calendar extends React.Component {
 			let newAppointment = {events: [{title: 'My appointment', start: start, end: end}], color:'orange'}
 			$('#calendar').fullCalendar('addEventSource', newAppointment);
 		}
+	}
+
+	componentDidUpdate (prevProps) {
+	    const oldUserId = prevProps.params ? prevProps.params.userId : null;
+	    const newUserId = this.props.parentParams.userId;
+	    //console.log('calendar-cdu', this.props.params);
+	    console.log('calendar-cdu-parentParams', this.props.parentParams);
+
+	    if(oldUserId != newUserId) {
+	    	const {calendar} = this.refs;
+	    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == newUserId});
+	    	const availability = this.props.coaches[index].availability;
+
+			$(calendar).fullCalendar('removeEvents');
+			$(calendar).fullCalendar('addEventSource', availability);
+			$(calendar).fullCalendar('rerenderEvents');
+	    }
+	    this.prevParams = this.props.parentParams;
+
 	}
 
 	render() {

@@ -1,4 +1,4 @@
 coding_question.txt
 node_modules
-dist/lib
+public/lib
 dist/bundle.js

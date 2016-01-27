@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import _ from 'lodash';
 
 var itemStyle = {
@@ -29,7 +30,6 @@ var itemStyle = {
 			<div className='coachList'>
 				<h2 className='nomargin'>Coaches</h2> 
 				<ul>
-				<li onClick={this.showAll} ><div style={itemStyle}></div><a>All</a></li>
 				{this.props.coaches.map(coach => <CoachRow key={coach.name} coach={coach}/> )}
 				</ul>
 			</div>
@@ -43,21 +43,15 @@ class CoachRow extends React.Component {
 		this.handleClick = this.handleClick.bind(this);
 	}
 	handleClick() {
-		const {availability} = this.props.coach;
-
-		$('#calendar').fullCalendar('removeEvents');
-		$('#calendar').fullCalendar('addEventSource', availability);
-		$('#calendar').fullCalendar('rerenderEvents');
-
-
+		//now handled in router
 	}
 	render() {
 		itemStyle.backgroundColor = this.props.coach.availability.color;
-			
+		const coachLink = "/coach/" + this.props.coach.id;
 		return (
 			<li onClick={this.handleClick} >
 					<div style={itemStyle}></div>
-					<a>{this.props.coach.name}</a>
+					<Link to={coachLink}>{this.props.coach.name}</Link>
 
 			</li>
 			);
