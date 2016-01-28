@@ -85,3 +85,6 @@ app.get('/logout', function(req, res){
   res.locals.user = null;
   res.redirect('/');
 });
+
+
+module.exports = app;

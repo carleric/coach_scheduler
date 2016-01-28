@@ -14,26 +14,22 @@ var itemStyle = {
  class CoachList extends React.Component {
 	constructor(props){
 		super(props);
-		this.showAll = this.showAll.bind(this);
 	}
-	showAll() {
-		$('#calendar').fullCalendar('removeEvents');
-		_.each(this.props.coaches, function(coach) {
-			$('#calendar').fullCalendar('addEventSource', coach.availability);
-		});
-		$('#calendar').fullCalendar('rerenderEvents');
-	}
-
 	render() {
-		itemStyle.backgroundColor = 'green';
 		return (
 			<div className='coachList'>
 				<h2 className='nomargin'>Coaches</h2> 
-				<ul>
-				{this.props.coaches.map(coach => <CoachRow key={coach.name} coach={coach}/> )}
-				</ul>
+				<div className='ui segments'>
+				{this.props.coaches.map(coach => <CoachRow key={coach.name} onCoachChange={this.props.onCoachChange} coach={coach}/> )}
+				</div>
 			</div>
 			);
+	}
+	componentDidMount() {
+		console.log('coachlist-didMount', this.props);
+	}
+	componentWillReceiveProps(nextProps) {
+		console.log('coaches-willReceiveProps', nextProps);
 	}
 }
 
@@ -44,16 +40,27 @@ class CoachRow extends React.Component {
 	}
 	handleClick() {
 		//now handled in router
+		//todo: try passing a function pointer from app
+		this.props.onCoachChange(this.props.coach.id);
+	}
+	componentDidMount() {
+		console.log('coachrow-didMount', this.props);
+	}
+	componentWillReceiveProps(nextProps) {
+		console.log('coachrow-willReceiveProps', nextProps);
 	}
 	render() {
 		itemStyle.backgroundColor = this.props.coach.availability.color;
-		const coachLink = "/coach/" + this.props.coach.id;
+		const coachBioLink = `/coach/${this.props.coach.id}/bio`;
+		const coachAvailabilityLink = `/coach/${this.props.coach.id}/sched`;
 		return (
-			<li onClick={this.handleClick} >
+			<div className='ui segment' onClick={this.handleClick} >
 					<div style={itemStyle}></div>
-					<Link to={coachLink}>{this.props.coach.name}</Link>
-
-			</li>
+					<div>{this.props.coach.name}</div>
+					<div className="ui horizontal divider"/>
+					<Link to={coachBioLink}><div className='ui grey basic button'>bio</div></Link>
+					<Link to={coachAvailabilityLink}><div className='ui grey basic button'>schedule</div></Link>
+			</div>
 			);
 	}
 }

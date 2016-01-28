@@ -1,10 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, Link, browserHistory } from 'react-router';
+import { Router, Route, Link } from 'react-router';
 import CoachList from './components/coaches';
 import Calendar from './components/calendar';
 import createHistory from 'history/lib/createBrowserHistory';
 
+let history = createHistory();
+
+
+//mock data 
 const colors = ['LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen'];
 const coaches = [
 	{id: 1, name:'Bob Ernst', availability: {events: [
@@ -28,6 +32,7 @@ const coaches = [
 	];
 
 const eventSources = coaches.map(function(coach) {
+	coach.bio = coach.name + " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 	coach.availability.events = coach.availability.events.map(function(event) {
 		event.title = coach.name;
 		return event;
@@ -35,30 +40,60 @@ const eventSources = coaches.map(function(coach) {
 	return coach.availability;
 });
 
+
+//root component
 class App extends React.Component{
 	constructor(props){
 		super(props);
+		this.state = {
+			selectedCoachId: '', 
+			coaches: coaches, 
+			viewMode: 'Coaches'
+		};
+		this.handleCoachChange = this.handleCoachChange.bind(this);
+		this.handleViewModeChange = this.handleViewModeChange.bind(this);
+		this.navigate = this.navigate.bind(this);
 	}
-	componenetDidMount() {
-		console.log('App-mounted', this.props.params);
+
+	handleViewModeChange(viewMode) {
+		console.log('App.handleViewModeChange', viewMode);
+		//this.setState({viewMode: viewMode});
+		//this.navigate();
 	}
-	componentWillReceiveProps() {
-		console.log('App-receivedProps', this.props.params);
+
+	handleCoachChange(coachId) {
+		console.log('App.handleCoachChange', coachId);
+		//this.setState({selectedCoachId: coachId});
+		//this.navigate();
 	}
-	componentDidUpdate (prevProps) {
-		console.log('App-updated', this.props.params);
+
+	navigate(){
+		if(this.state.viewMode == 'Coaches') {
+			history.push('/coaches');
+		} else if(this.state.viewMode == 'Availability') {
+			history.push('/coach/'+this.state.selectedCoachId);
+		}
 	}
+
+	componentWillReceiveProps(props) {
+		console.log('App willReceiveProps', props, this.state);
+		this.setState({selectedCoachId: props.params.coachId});
+	}
+	componentDidReceiveProps(props) {
+		console.log('App didReceiveProps', props, this.state);
+	}
+
 	render() {
-		console.log('App-render', this.props.params);
+		console.log('App-render', this.props);
 		return (
 			<div className='ui container'>
 				<div className='ui segments'>
 					<div className='ui segment'>
-						<Menu/>
+						<Menu onViewModeChange={this.handleViewModeChange}/>
 					</div>
 				</div>
 				<div className='ui segment'>
-					{this.props.children && React.cloneElement(this.props.children, this.props)}  
+					{this.props.children && React.cloneElement(this.props.children, {onCoachChange: this.handleCoachChange, coachId: this.state.selectedCoachId, coaches: this.state.coaches})}  
 				</div>
 			</div>
 		);
@@ -66,50 +101,97 @@ class App extends React.Component{
 }
 
 class Menu extends React.Component{
+	constructor(props){
+		super(props);
+		this.handleViewModeChange = this.handleViewModeChange.bind(this);
+	}
+	handleViewModeChange(viewMode){
+		this.props.onViewModeChange(viewMode);
+	}
 	render() {
 		return (
 			<div className='ui top attached menu'>
-				<Link to="/coaches" className='item'>Coaches</Link>
+				<MenuItem viewMode='Home' onViewModeChange={this.props.onViewModeChange}/>
 			</div>
 		);
+	}
+}
+
+class MenuItem extends React.Component{
+	constructor(props) {
+		super(props);
+		this.handleClick = this.handleClick.bind(this);
+	}
+	handleClick(){
+		this.props.onViewModeChange(this.props.viewMode);
+	}
+	render() {
+		return (<a className='item' onClick={this.handleClick}>{this.props.viewMode}</a>);
 	}
 }
 
 class CoachAvailability extends React.Component{
-	componentDidMount () {
-		console.log('CoachAvailability-mounted', this.props.params);
-	}
-	componentDidUpdate (prevProps) {
-		console.log('CoachAvailability-updated', this.props.params);
-	}
+	// componentDidMount () {
+	// 	console.log('CoachAvailability-mounted', this.props.params);
+	// }
+	// componentDidUpdate (prevProps) {
+	// 	console.log('CoachAvailability-updated', this.props.params);
+	// }
 	render() {
-		console.log('CoachAvailability-render');
+		console.log('CoachAvailability-render', this.props.params);
 		return (
 			<div className='ui grid'>
-				<div className='four wide column'>
-					<CoachList coaches={coaches} />
+				<div className='six wide column'>
+					<CoachList onCoachChange={this.props.onCoachChange} coachId={this.props.coachId} coaches={coaches} />
 				</div>
-				<div className='twelve wide column'>
-					<Calendar parentParams={this.props.params} coaches={coaches}/>
+				<div className='ten wide column'>
+					<Calendar coachId={this.props.coachId} coaches={coaches}/>
 				</div>
 			</div>
 		);
 	}
 }
 
-class CoachListWrapper extends React.Component {
+class CoachBios extends React.Component {
+	constructor(props){
+		super(props);
+		//this.selectedCoachId = 1;
+		this.handleCoachChange = this.handleCoachChange.bind(this);
+		this.getBioForCoach = this.getBioForCoach.bind(this);
+	}
+	handleCoachChange(coachId){
+		//this.setState({selectedCoachId : coachId});
+		this.props.onCoachChange(coachId);
+	}
+	getBioForCoach(coachId){
+		console.log('getBioForCoach', coachId);
+		const id = coachId == undefined ? this.props.coachId : coachId;
+		if(id == undefined || id == -1 || id == '') return;
+		const {calendar} = this.refs;
+    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == id});
+    	return this.props.coaches[index].bio;
+	}
 	render(){
+		console.log('CoachBios', this.props);
 		return (
-			<CoachList coaches={coaches}/>
+			<div className='ui grid'>
+				<div className='six wide column'>
+					<CoachList onCoachChange={this.handleCoachChange} coachId={this.props.coachId} coaches={coaches} />
+				</div>
+				<div className='ten wide column'>
+					{this.getBioForCoach()}
+				</div>
+			</div>
 			);
 	}
 }
 
 ReactDOM.render((
-  <Router history={browserHistory}>
+  <Router history={history}>
     <Route path="/" component={App}>
-      <Route path="coaches" component={CoachListWrapper}/>
-      <Route path="coach/:userId" component={CoachAvailability}/>
+      <Route path="coaches" component={CoachBios}/>
+      <Route path="coach/:coachId/bio" component={CoachBios}/>
+      <Route path="coach/:coachId/sched" component={CoachAvailability}/>
     </Route>
   </Router>
 ), document.getElementById('app'));

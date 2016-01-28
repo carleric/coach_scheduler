@@ -10,9 +10,10 @@ class Calendar extends React.Component {
 	}
 
 	componentDidMount() {
+		console.log('calendar-didMount', this.props);
 		const {calendar} = this.refs;
 		$(calendar).fullCalendar({
-			eventSources: this.props.eventSources,
+			eventSources: this.getAvailabilityForCoach(),
 			eventClick: this.eventClick,
 			dayClick: this.dayClick,
 			header: {left: 'today prev,next', center: 'title', right: 'month agendaWeek agendaDay'},
@@ -46,7 +47,6 @@ class Calendar extends React.Component {
 
 	componentWillUnmount() {
 		const {calendar} = this.refs;
-
 		$(calendar).fullCalendar('destroy');
 	}
 
@@ -73,23 +73,33 @@ class Calendar extends React.Component {
 		}
 	}
 
+	componentWillReceiveProps(nextProps) {
+		console.log('calendar-willReceiveProps', this.props.coachId);
+	}
+
 	componentDidUpdate (prevProps) {
-	    const oldUserId = prevProps.params ? prevProps.params.userId : null;
-	    const newUserId = this.props.parentParams.userId;
-	    //console.log('calendar-cdu', this.props.params);
-	    console.log('calendar-cdu-parentParams', this.props.parentParams);
+	    const oldCoachId = prevProps ? prevProps.coachId : null;
+	    const newCoachId = this.props.coachId;
+	    console.log('calendar-didUpdate', this.props.coachId);
 
-	    if(oldUserId != newUserId) {
-	    	const {calendar} = this.refs;
-	    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == newUserId});
-	    	const availability = this.props.coaches[index].availability;
-
-			$(calendar).fullCalendar('removeEvents');
-			$(calendar).fullCalendar('addEventSource', availability);
-			$(calendar).fullCalendar('rerenderEvents');
+	    if(oldCoachId != newCoachId) {
+	    	this.showAvailabilityForSelectedCoach(newCoachId);
 	    }
-	    this.prevParams = this.props.parentParams;
 
+	}
+
+	showAvailabilityForSelectedCoach(newCoachId){
+		$(calendar).fullCalendar('removeEvents');
+		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach(newCoachId));
+		$(calendar).fullCalendar('rerenderEvents');
+	}
+
+	getAvailabilityForCoach(coachId){
+		const id = coachId == undefined ? this.props.coachId : coachId;
+		if(id == undefined || id == 0 || id == '') return;
+		const {calendar} = this.refs;
+    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == id});
+    	return this.props.coaches[index].availability;
 	}
 
 	render() {
