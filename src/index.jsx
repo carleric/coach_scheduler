@@ -29,45 +29,58 @@ const coaches = [
 const eventSources = coaches.map(function(coach) {
 	coach.availability.events = coach.availability.events.map(function(event) {
 		event.title = coach.name;
-		//event.rendering = 'background';
 		return event;
 	});
 	return coach.availability;
 });
 
-const App = React.createClass({
-	componenetDidMount: function() {
+class App extends React.Component{
+	constructor(props){
+		super(props);
+	}
+	componenetDidMount() {
 		console.log('App-mounted', this.props.params);
-	},
-	componentWillReceiveProps: function() {
+	}
+	componentWillReceiveProps() {
 		console.log('App-receivedProps', this.props.params);
-	},
-	componentDidUpdate: function (prevProps) {
+	}
+	componentDidUpdate (prevProps) {
 		console.log('App-updated', this.props.params);
-	},
-	render: function() {
+	}
+	render() {
 		console.log('App-render', this.props.params);
 		return (
 			<div className='container'>
 				<div className='row'>
 					<div className='col-md-12'>
-						<p>Menu</p>
+						<Menu/>
 					</div>
 				</div>
 				<div className='row'>
-
 					{this.props.children && React.cloneElement(this.props.children, this.props)}  
 				</div>
 			</div>
 		);
 	}
-});
+}
 
-const CoachAvailability = React.createClass({
-	componentDidUpdate: function (prevProps) {
-		console.log('CoachAvailability-cdu', this.props.params);
-	},
-	render: function() {
+class Menu extends React.Component{
+	render() {
+		return (
+			<Link to="/coaches">Coaches</Link>
+		);
+	}
+}
+
+class CoachAvailability extends React.Component{
+	componentDidMount () {
+		console.log('CoachAvailability-mounted', this.props.params);
+	}
+	componentDidUpdate (prevProps) {
+		console.log('CoachAvailability-updated', this.props.params);
+	}
+	render() {
+		console.log('CoachAvailability-render');
 		return (
 			<div>
 				<div className='col-md-2'>
@@ -79,12 +92,20 @@ const CoachAvailability = React.createClass({
 			</div>
 		);
 	}
-});
+}
+
+class CoachListWrapper extends React.Component {
+	render(){
+		return (
+			<CoachList coaches={coaches}/>
+			);
+	}
+}
 
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route path="/" component={App}>
-      <Route path="coaches" component={CoachList}/>
+      <Route path="coaches" component={CoachListWrapper}/>
       <Route path="coach/:userId" component={CoachAvailability}/>
     </Route>
   </Router>
