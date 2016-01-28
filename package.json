@@ -9,8 +9,6 @@
     "test:watch": "npm run test -- --watch"
   },
   "dependencies": {
-    "bootstrap": "^3.3.6",
-    "bootstrap-webpack": "0.0.5",
     "exports-loader": "^0.6.2",
     "express": "^4.13.4",
     "extract-text-webpack-plugin": "^1.0.1",
@@ -28,7 +26,10 @@
     "react-redux": "^4.0.6",
     "react-router": "^1.0.3",
     "redux": "^3.0.5",
-    "url-loader": "^0.5.7"
+    "url-loader": "^0.5.7",
+    "mongoose": "^4.3.6",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",

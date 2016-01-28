@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Router, Route, Link, browserHistory } from 'react-router';
 import CoachList from './components/coaches';
 import Calendar from './components/calendar';
+import createHistory from 'history/lib/createBrowserHistory';
 
 const colors = ['LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen'];
 const coaches = [
@@ -50,13 +51,13 @@ class App extends React.Component{
 	render() {
 		console.log('App-render', this.props.params);
 		return (
-			<div className='container'>
-				<div className='row'>
-					<div className='col-md-12'>
+			<div className='ui container'>
+				<div className='ui segments'>
+					<div className='ui segment'>
 						<Menu/>
 					</div>
 				</div>
-				<div className='row'>
+				<div className='ui segment'>
 					{this.props.children && React.cloneElement(this.props.children, this.props)}  
 				</div>
 			</div>
@@ -67,7 +68,9 @@ class App extends React.Component{
 class Menu extends React.Component{
 	render() {
 		return (
-			<Link to="/coaches">Coaches</Link>
+			<div className='ui top attached menu'>
+				<Link to="/coaches" className='item'>Coaches</Link>
+			</div>
 		);
 	}
 }
@@ -82,11 +85,11 @@ class CoachAvailability extends React.Component{
 	render() {
 		console.log('CoachAvailability-render');
 		return (
-			<div>
-				<div className='col-md-2'>
+			<div className='ui grid'>
+				<div className='four wide column'>
 					<CoachList coaches={coaches} />
 				</div>
-				<div className='col-md-10'>
+				<div className='twelve wide column'>
 					<Calendar parentParams={this.props.params} coaches={coaches}/>
 				</div>
 			</div>
