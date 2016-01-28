@@ -20,7 +20,7 @@ var itemStyle = {
 			<div className='coachList'>
 				<h2 className='nomargin'>Coaches</h2> 
 				<div className='ui segments'>
-				{this.props.coaches.map(coach => <CoachRow key={coach.name} onCoachChange={this.props.onCoachChange} coach={coach}/> )}
+				{this.props.coaches.map(coach => <CoachRow key={coach.name} coach={coach}/> )}
 				</div>
 			</div>
 			);
@@ -36,12 +36,6 @@ var itemStyle = {
 class CoachRow extends React.Component {
 	constructor(props){
 		super(props);
-		this.handleClick = this.handleClick.bind(this);
-	}
-	handleClick() {
-		//now handled in router
-		//todo: try passing a function pointer from app
-		this.props.onCoachChange(this.props.coach.id);
 	}
 	componentDidMount() {
 		console.log('coachrow-didMount', this.props);
@@ -54,7 +48,7 @@ class CoachRow extends React.Component {
 		const coachBioLink = `/coach/${this.props.coach.id}/bio`;
 		const coachAvailabilityLink = `/coach/${this.props.coach.id}/sched`;
 		return (
-			<div className='ui segment' onClick={this.handleClick} >
+			<div className='ui segment'>
 					<div style={itemStyle}></div>
 					<div>{this.props.coach.name}</div>
 					<div className="ui horizontal divider"/>

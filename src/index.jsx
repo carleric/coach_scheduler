@@ -93,7 +93,7 @@ class App extends React.Component{
 					</div>
 				</div>
 				<div className='ui segment'>
-					{this.props.children && React.cloneElement(this.props.children, {onCoachChange: this.handleCoachChange, coachId: this.state.selectedCoachId, coaches: this.state.coaches})}  
+					{this.props.children && React.cloneElement(this.props.children, {coachId: this.state.selectedCoachId, coaches: this.state.coaches})}  
 				</div>
 			</div>
 		);
@@ -142,7 +142,7 @@ class CoachAvailability extends React.Component{
 		return (
 			<div className='ui grid'>
 				<div className='six wide column'>
-					<CoachList onCoachChange={this.props.onCoachChange} coachId={this.props.coachId} coaches={coaches} />
+					<CoachList coachId={this.props.coachId} coaches={coaches} />
 				</div>
 				<div className='ten wide column'>
 					<Calendar coachId={this.props.coachId} coaches={coaches}/>
@@ -155,13 +155,7 @@ class CoachAvailability extends React.Component{
 class CoachBios extends React.Component {
 	constructor(props){
 		super(props);
-		//this.selectedCoachId = 1;
-		this.handleCoachChange = this.handleCoachChange.bind(this);
 		this.getBioForCoach = this.getBioForCoach.bind(this);
-	}
-	handleCoachChange(coachId){
-		//this.setState({selectedCoachId : coachId});
-		this.props.onCoachChange(coachId);
 	}
 	getBioForCoach(coachId){
 		console.log('getBioForCoach', coachId);
@@ -176,7 +170,7 @@ class CoachBios extends React.Component {
 		return (
 			<div className='ui grid'>
 				<div className='six wide column'>
-					<CoachList onCoachChange={this.handleCoachChange} coachId={this.props.coachId} coaches={coaches} />
+					<CoachList coachId={this.props.coachId} coaches={coaches} />
 				</div>
 				<div className='ten wide column'>
 					{this.getBioForCoach()}
