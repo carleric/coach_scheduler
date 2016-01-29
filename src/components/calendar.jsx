@@ -20,7 +20,7 @@ class Calendar extends React.Component {
 			businessHours: {
 			    start: '08:00', // a start time (10am in this example)
 			    end: '18:00', // an end time (6pm in this example)
-			    dow: [ 1, 2, 3, 4 ]
+			    dow: [ 1, 2, 3, 4, 5]
 			    // days of week. an array of zero-based day of week integers (0=Sunday)
 			    // (Monday-Thursday in this example)
 			}
@@ -41,12 +41,32 @@ class Calendar extends React.Component {
 					event.rendering = null;
 				}
 				return true;
+			},
+			viewRender: function(view, element){
+				//console.log('calendar', view, element);
+				$(calendar).popup('destroy');
+				var calSettings = {
+					on: 'manual', 
+					delay: {show: 50, hide:2000},
+					duration: 1000,
+					offset: 100
+				};
+				if(view.type == 'agendaDay'){
+					$(calendar).popup(_.assign(calSettings, { title:'Click to make an appointment', content:'click in the white space corresponding to the time you would like.'}));
+				} else if (view.type == 'month'){
+					$(calendar).popup(_.assign(calSettings, {on: 'manual', title:'Click to make an appointment', content:'click inside of a colored event indicating open slots with your coach.'}));
+				}
+				$(calendar).popup('show');
 			}
 		});
+		// $(calendar)
+		//   .popup()
+		// ;
 	}
 
 	componentWillUnmount() {
 		const {calendar} = this.refs;
+		$(calendar).popup('destroy');
 		$(calendar).fullCalendar('destroy');
 	}
 
@@ -96,7 +116,7 @@ class Calendar extends React.Component {
 
 	getAvailabilityForCoach(coachId){
 		const id = coachId == undefined ? this.props.coachId : coachId;
-		if(id == undefined || id == 0 || id == '') return;
+		if(id == undefined || id == 0 || id == '' || this.props.coaches == undefined || this.props.coaches.length == 0) return;
 		const {calendar} = this.refs;
     	const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
     	return this.props.coaches[index].availability;
