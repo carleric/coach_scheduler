@@ -16,6 +16,7 @@ var UserSchema = mongoose.Schema({
 	username: { type:String, required: true, index: { unique: true }},
 	type: {type:String, required:true, default:'client'},
 	password: {type:String, required:true},
+    images: mongoose.Schema.Types.Mixed,
     bio: String,
     availability: { events: [EventSchema], color: String},
     appointments: { events: [EventSchema], color: String},
@@ -57,9 +58,10 @@ var User = mongoose.model('User', UserSchema);
 const colors = ['LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen'];
 const coaches = [
     {
-        username:'Bob Foo', 
+        username:'Matt Foo', 
         type: 'coach', 
         password: 'foo', 
+        images: {medium: '/images/matthew.png'}, 
         availability: 
             {
                 events: [
@@ -69,13 +71,13 @@ const coaches = [
             ,
             color:colors[0]}
     }, 
-    {username:'John Bar', type: 'coach', password: 'bar', availability: {events: [
+    {username:'Molly Bar', type: 'coach', password: 'bar', images:  {medium: '/images/molly.png'}, availability: {events: [
         {title: 'Open', start: '2016-01-23T08:00', end: '2016-01-23T18:00'}, 
         {title: 'Open', start: '2016-01-24T08:00', end: '2016-01-24T18:00'}, 
         {title: 'Open', start: '2016-01-25T08:00', end: '2016-01-25T18:00'}],
         color:colors[1]}
     }, 
-    {username:'Dave Zip', type: 'coach', password: 'zip', availability: {events: [
+    {username:'Elyse Zip', type: 'coach', password: 'zip', images:  {medium: '/images/elyse.png'}, availability: {events: [
         {title: 'Open', start: '2016-01-12T08:00', end: '2016-01-12T18:00'}, 
         {title: 'Open', start: '2016-01-13T08:00', end: '2016-01-13T18:00'}, 
         {title: 'Open', start: '2016-01-14T08:00', end: '2016-01-14T18:00'}],

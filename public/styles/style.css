@@ -17,3 +17,7 @@
 	marginLeft: '10px', 
 	marginRight: '10px'
 }
+
+.coachImage {
+	max-width: 200px;
+}
