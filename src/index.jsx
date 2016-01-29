@@ -4,42 +4,9 @@ import { Router, Route, Link } from 'react-router';
 import CoachList from './components/coaches';
 import Calendar from './components/calendar';
 import createHistory from 'history/lib/createBrowserHistory';
+import axios from 'axios';
 
 let history = createHistory();
-
-
-//mock data 
-const colors = ['LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen'];
-const coaches = [
-	{id: 1, name:'Bob Ernst', availability: {events: [
-		{title: 'Open', start: '2016-01-22T08:00', end: '2016-01-22T18:00'}, 
-		{title: 'Open', start: '2016-01-23T08:00', end: '2016-01-23T18:00'}, 
-		{title: 'Open', start: '2016-01-24T08:00', end: '2016-01-24T18:00'}],
-		color:colors[0]}
-	}, 
-	{id: 2, name:'John Parker', availability: {events: [
-		{title: 'Open', start: '2016-01-23T08:00', end: '2016-01-23T18:00'}, 
-		{title: 'Open', start: '2016-01-24T08:00', end: '2016-01-24T18:00'}, 
-		{title: 'Open', start: '2016-01-25T08:00', end: '2016-01-25T18:00'}],
-		color:colors[1]}
-	}, 
-	{id: 3, name:'Dave White', availability: {events: [
-		{title: 'Open', start: '2016-01-12T08:00', end: '2016-01-12T18:00'}, 
-		{title: 'Open', start: '2016-01-13T08:00', end: '2016-01-13T18:00'}, 
-		{title: 'Open', start: '2016-01-14T08:00', end: '2016-01-14T18:00'}],
-		color:colors[2]}
-	}
-	];
-
-const eventSources = coaches.map(function(coach) {
-	coach.bio = coach.name + " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
-	coach.availability.events = coach.availability.events.map(function(event) {
-		event.title = coach.name;
-		return event;
-	});
-	return coach.availability;
-});
-
 
 //root component
 class App extends React.Component{
@@ -47,7 +14,7 @@ class App extends React.Component{
 		super(props);
 		this.state = {
 			selectedCoachId: '', 
-			coaches: coaches, 
+			coaches: [], 
 			viewMode: 'Coaches'
 		};
 		this.handleCoachChange = this.handleCoachChange.bind(this);
@@ -83,6 +50,12 @@ class App extends React.Component{
 		console.log('App didReceiveProps', props, this.state);
 	}
 
+	componentDidMount() {
+		var coachPromise = axios.get('http://localhost:3000/api/coaches');
+		coachPromise.then(function(data){
+			this.setState({coaches: data.data});
+		}.bind(this));
+	}
 	render() {
 		console.log('App-render', this.props);
 		return (
@@ -142,10 +115,10 @@ class CoachAvailability extends React.Component{
 		return (
 			<div className='ui grid'>
 				<div className='six wide column'>
-					<CoachList coachId={this.props.coachId} coaches={coaches} />
+					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
-					<Calendar coachId={this.props.coachId} coaches={coaches}/>
+					<Calendar coachId={this.props.coachId} coaches={this.props.coaches}/>
 				</div>
 			</div>
 		);
@@ -162,7 +135,7 @@ class CoachBios extends React.Component {
 		const id = coachId == undefined ? this.props.coachId : coachId;
 		if(id == undefined || id == -1 || id == '') return;
 		const {calendar} = this.refs;
-    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == id});
+    	const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
     	return this.props.coaches[index].bio;
 	}
 	render(){
@@ -170,7 +143,7 @@ class CoachBios extends React.Component {
 		return (
 			<div className='ui grid'>
 				<div className='six wide column'>
-					<CoachList coachId={this.props.coachId} coaches={coaches} />
+					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
 					{this.getBioForCoach()}

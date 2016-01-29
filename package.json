@@ -9,6 +9,7 @@
     "test:watch": "npm run test -- --watch"
   },
   "dependencies": {
+    "axios": "^0.9.1",
     "bcrypt": "^0.8.5",
     "exports-loader": "^0.6.2",
     "express": "^4.13.4",

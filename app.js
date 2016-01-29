@@ -3,9 +3,10 @@ var express = require('express');
 var webpack = require('webpack');
 var config = require('./webpack.config.dev');
 var compiler = webpack(config);
+var api = require('./routes/api');
 var passport = require('passport'), 
 LocalStrategy = require('passport-local').Strategy;
-var User = require('./models/user.js').User;
+
 
 //express instantiation, basic web server
 var app = express();
@@ -21,11 +22,14 @@ if(app.get('env') == 'development') {
 
 //static files
 app.use(express.static('public'));
+app.use('/api', api);
 
 //all requests default to the index
-app.get('*', function(req, res) {
+app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+
 
 
 passport.use(new LocalStrategy(

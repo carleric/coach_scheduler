@@ -20,7 +20,7 @@ var itemStyle = {
 			<div className='coachList'>
 				<h2 className='nomargin'>Coaches</h2> 
 				<div className='ui segments'>
-				{this.props.coaches.map(coach => <CoachRow key={coach.name} coach={coach}/> )}
+				{this.props.coaches.map(coach => <CoachRow key={coach._id} coach={coach}/> )}
 				</div>
 			</div>
 			);
@@ -45,12 +45,12 @@ class CoachRow extends React.Component {
 	}
 	render() {
 		itemStyle.backgroundColor = this.props.coach.availability.color;
-		const coachBioLink = `/coach/${this.props.coach.id}/bio`;
-		const coachAvailabilityLink = `/coach/${this.props.coach.id}/sched`;
+		const coachBioLink = `/coach/${this.props.coach._id}/bio`;
+		const coachAvailabilityLink = `/coach/${this.props.coach._id}/sched`;
 		return (
 			<div className='ui segment'>
 					<div style={itemStyle}></div>
-					<div>{this.props.coach.name}</div>
+					<div>{this.props.coach.username}</div>
 					<div className="ui horizontal divider"/>
 					<Link to={coachBioLink}><div className='ui grey basic button'>bio</div></Link>
 					<Link to={coachAvailabilityLink}><div className='ui grey basic button'>schedule</div></Link>

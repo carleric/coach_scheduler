@@ -98,7 +98,7 @@ class Calendar extends React.Component {
 		const id = coachId == undefined ? this.props.coachId : coachId;
 		if(id == undefined || id == 0 || id == '') return;
 		const {calendar} = this.refs;
-    	const index = _.findIndex(this.props.coaches, function(coach) { return coach.id == id});
+    	const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
     	return this.props.coaches[index].availability;
 	}
 
