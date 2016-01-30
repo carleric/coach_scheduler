@@ -52,15 +52,18 @@ class App extends React.Component{
 		const token = auth.getToken();
 		return (
 			<div className='ui container'>
+				<Menu loggedIn={this.state.loggedIn} user={this.state.user}/>
+
 				<div className='ui segments'>
-					<div className='ui segment'>
-						<Menu loggedIn={this.state.loggedIn} user={this.state.user}/>
+					<div className='ui segment message'>
+						
 					</div>
-				</div>
+				
 				 
-				<div className='ui segment'>
-					<p>Auth Token: {token} </p>
-					{this.props.children && React.cloneElement(this.props.children, {user: this.state.user, coachId: this.state.selectedCoachId, coaches: this.state.coaches, makeAppointment: this.makeAppointment, onLogin: this.didLoginWithUser})} 
+					<div className='ui segment'>
+						{this.props.children && React.cloneElement(this.props.children, {user: this.state.user, coachId: this.state.selectedCoachId, coaches: this.state.coaches, makeAppointment: this.makeAppointment, onLogin: this.didLoginWithUser})} 
+					</div>
+
 				</div>
 			</div>
 		);
@@ -117,22 +120,15 @@ class Menu extends React.Component{
 	constructor(props){
 		super(props);
 	}
+
 	render() {
 		return (
 			<div className='ui top attached menu'>
-				<Link className='item' to='/'>Home</Link>
-
-	            {this.props.loggedIn ? (
-	              <div>
-	                <Link className='item' to='/me'>{this.props.user.username}</Link>
-	                <Link className='item' to="/logout">Log out</Link>
-	              </div>
-	            ) : (
-	              <Link className='item' to="/login">Sign in</Link>
-	            )}
-	     
+				<Link className='item' activeClassName='item active' to='/'>Home</Link>
+				{this.props.loggedIn && <Link className='item' to='/me' activeClassName='item active'>{this.props.user.username}</Link>}
+				{this.props.loggedIn && <Link className='item' to="/logout" activeClassName='item active'>Log out</Link> || <Link className='item' activeClassName='item active' to="/login">Sign in</Link>}
 			</div>
-		);
+			);
 	}
 }
 

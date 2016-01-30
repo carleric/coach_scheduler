@@ -2,6 +2,9 @@ import React from 'react';
 import { Link } from 'react-router';
 import _ from 'lodash';
 
+const BTN_ACTIVE = 'ui basic orange active button';
+const BTN_INACTIVE = 'ui basic grey button';
+
 var itemStyle = {
 			width: '1em', 
 			height: '1em', 
@@ -52,8 +55,8 @@ class CoachRow extends React.Component {
 					<div style={itemStyle}></div>
 					<div>{this.props.coach.username}</div>
 					<div className="ui horizontal divider"/>
-					<Link to={coachBioLink}><div className='ui grey basic button'>bio</div></Link>
-					<Link to={coachAvailabilityLink}><div className='ui grey basic button'>schedule</div></Link>
+					<Link to={coachBioLink} activeClassName={BTN_ACTIVE} className={BTN_INACTIVE}>bio</Link>
+					<Link to={coachAvailabilityLink} activeClassName={BTN_ACTIVE} className={BTN_INACTIVE}>schedule</Link>
 			</div>
 			);
 	}
