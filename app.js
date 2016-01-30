@@ -1,15 +1,25 @@
 var path = require('path');
 var express = require('express');
+var session = require('express-session');
 var webpack = require('webpack');
 var config = require('./webpack.config.dev');
 var compiler = webpack(config);
 var api = require('./routes/api');
 var passport = require('passport'), 
 LocalStrategy = require('passport-local').Strategy;
+var bodyParser = require('body-parser');
+var User = require('./models/user.js').User;
 
 
 //express instantiation, basic web server
 var app = express();
+
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(session({ cookie: { maxAge: 60000 }, resave: false, secret: 'cat keyboard', saveUninitialized: true}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 //development middleware 
 if(app.get('env') == 'development') {
@@ -28,8 +38,6 @@ app.use('/api', api);
 app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-
 
 
 passport.use(new LocalStrategy(
@@ -67,18 +75,18 @@ passport.use(new LocalStrategy(
 // );
 
 app.post('/login', function(req, res, next) {
+  debugger;
+  console.log(`login with user=${req.params.username} pass=${req.params.password}`);
   passport.authenticate('local', function(err, user, info) {
     console.log("authenticate callback err="+err+" user="+user+" info="+info);
     if (err) { return next(err); }
     if (!user) { 
       req.logout();
-      req.flash('failure', ['Login failure', info]);
-      return res.redirect('/login'); 
+      return res.send({authenticated: false});
     }
     req.logIn(user, function(err) {
       if (err) { return next(err); }
-      req.flash('success', ['Welcome', info]);
-      return res.redirect('/dashboard');
+      return res.send({authenticated: true, token: '8767sdjhdf', user: user});
     });
   })(req, res, next);
 });
@@ -87,7 +95,19 @@ app.post('/login', function(req, res, next) {
 app.get('/logout', function(req, res){
   req.logout();
   res.locals.user = null;
-  res.redirect('/');
+  //res.redirect('/');
+  return res.send({status: 'OK'});
+});
+
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
 });
 
 

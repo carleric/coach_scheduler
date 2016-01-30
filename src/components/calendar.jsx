@@ -5,6 +5,7 @@ import _ from 'lodash';
 class Calendar extends React.Component {
 	constructor(props) {
 		super(props);
+		this.selectedAvailabilityEvent = {};
 		this.eventClick = this.eventClick.bind(this);
 		this.dayClick = this.dayClick.bind(this);
 	}
@@ -16,7 +17,7 @@ class Calendar extends React.Component {
 			eventSources: this.getAvailabilityForCoach(),
 			eventClick: this.eventClick,
 			dayClick: this.dayClick,
-			header: {left: 'today prev,next', center: 'title', right: 'month agendaWeek agendaDay'},
+			header: {left: 'today prev,next', center: 'title', right: 'month agendaDay'},
 			businessHours: {
 			    start: '08:00', // a start time (10am in this example)
 			    end: '18:00', // an end time (6pm in this example)
@@ -48,11 +49,10 @@ class Calendar extends React.Component {
 				var calSettings = {
 					on: 'manual', 
 					delay: {show: 50, hide:2000},
-					duration: 1000,
-					offset: 100
+					duration: 1000
 				};
 				if(view.type == 'agendaDay'){
-					$(calendar).popup(_.assign(calSettings, { title:'Click to make an appointment', content:'click in the white space corresponding to the time you would like.'}));
+					$(calendar).popup(_.assign(calSettings, { title:'Click to make an appointment', content:'click in the white space corresponding to the time you would like.', offset: 300}));
 				} else if (view.type == 'month'){
 					$(calendar).popup(_.assign(calSettings, {on: 'manual', title:'Click to make an appointment', content:'click inside of a colored event indicating open slots with your coach.'}));
 				}
@@ -76,6 +76,7 @@ class Calendar extends React.Component {
 		if(currentView.type == 'month' || currentView.type == 'agendaWeek') {
 			$(calendar).fullCalendar('changeView', 'agendaDay');
 			$(calendar).fullCalendar( 'gotoDate', calEvent.start );
+			this.selectedAvailabilityEvent = calEvent;
 			return true;
 		}
 		return false;
@@ -86,10 +87,12 @@ class Calendar extends React.Component {
 		const currentView = $(calendar).fullCalendar('getView');
 		if(currentView.type == 'agendaDay' || currentView.type == 'agendaWeek') {
 			console.log("clicked hour=" + date.get('hour') + " minute=" + date.get('minute'));
-			const start = date.clone();
-			const end = date.add(1, 'h');
-			let newAppointment = {events: [{title: 'My appointment', start: start, end: end}], color:'orange'}
-			$('#calendar').fullCalendar('addEventSource', newAppointment);
+			const desiredStart = date.clone();
+			const desiredEnd = date.add(1, 'h');
+
+			this.props.makeAppointment(desiredStart);
+			
+			
 		}
 	}
 
@@ -117,8 +120,7 @@ class Calendar extends React.Component {
 	getAvailabilityForCoach(coachId){
 		const id = coachId == undefined ? this.props.coachId : coachId;
 		if(id == undefined || id == 0 || id == '' || this.props.coaches == undefined || this.props.coaches.length == 0) return;
-		const {calendar} = this.refs;
-    	const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
+		const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
     	return this.props.coaches[index].availability;
 	}
 

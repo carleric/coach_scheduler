@@ -1,23 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Router, Route, Link, IndexRoute } from 'react-router';
+import { Router, Route, Link, IndexRoute, browserHistory } from 'react-router';
 import CoachList from './components/coaches';
 import Calendar from './components/calendar';
-import createHistory from 'history/lib/createBrowserHistory';
 import axios from 'axios';
+import auth from './auth';
 
-let history = createHistory();
 
 //root component
 class App extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {
+			loggedIn: auth.loggedIn(),
 			selectedCoachId: '', 
-			coaches: []
+			coaches: [],
+			user: auth.getUser()
 		};
+		this.updateAuth = this.updateAuth.bind(this);
+		this.makeAppointment = this.makeAppointment.bind(this);
+		this.getAvailabilityForSelectedCoach = this.getAvailabilityForSelectedCoach.bind(this);
+		this.didLoginWithUser = this.didLoginWithUser.bind(this);
 	}
-
+	updateAuth(loggedIn) {
+	    this.setState({
+	      loggedIn: loggedIn
+	    })
+	}
 	componentWillReceiveProps(props) {
 		console.log('App willReceiveProps', props, this.state);
 		this.setState({selectedCoachId: props.params.coachId});
@@ -26,9 +35,12 @@ class App extends React.Component{
 	componentWillMount() {
 		console.log('App.componentWillMount', this.props.params)
 		this.setState({selectedCoachId: this.props.params.coachId});
+		auth.onChange = this.updateAuth;
+    	auth.login();
 	}
 	componentDidMount() {
 		console.log('App.componentDidMount')
+
 		var coachPromise = axios.get('http://localhost:3000/api/coaches');
 		coachPromise.then(function(data){
 			this.setState({coaches: data.data});
@@ -37,20 +49,69 @@ class App extends React.Component{
 	}
 	render() {
 		console.log('App-render', this.props, this.state);
+		const token = auth.getToken();
 		return (
 			<div className='ui container'>
 				<div className='ui segments'>
 					<div className='ui segment'>
-						<Menu/>
+						<Menu loggedIn={this.state.loggedIn} user={this.state.user}/>
 					</div>
 				</div>
+				 
 				<div className='ui segment'>
-					{this.props.children && React.cloneElement(this.props.children, {coachId: this.state.selectedCoachId, coaches: this.state.coaches})}  
+					<p>Auth Token: {token} </p>
+					{this.props.children && React.cloneElement(this.props.children, {user: this.state.user, coachId: this.state.selectedCoachId, coaches: this.state.coaches, makeAppointment: this.makeAppointment, onLogin: this.didLoginWithUser})} 
 				</div>
 			</div>
 		);
 	}
+	makeAppointment(desiredStart) {
+		console.log('makeAppointment', desiredStart);
+
+		const desiredEnd = desiredStart.clone().add(1, 'h');
+
+		//check if selected time falls within any availability slot for the currently selected coach
+		const availability = this.getAvailabilityForSelectedCoach();
+		const slotIndex = _.findIndex(availability.events, function(slot){
+			return desiredStart.add(1, 'm').isAfter(slot.start) && desiredEnd.subtract(1, 'm').isBefore(slot.end);;
+		});
+
+		if(slotIndex == -1)
+		{
+			$(calendar).popup('hide');
+			$(calendar).popup({
+				on: 'manual', 
+				title:'Invalid time', 
+				content:'Please click within an open time slot.',
+				delay: {show: 50, hide:5},
+				position: 'bottom right',
+				offset: -50
+			});
+			$(calendar).popup('show');
+			_.delay(function(){
+				$(calendar).popup('hide');
+			}, 2000);
+			return;
+		} 
+
+		//check if this user already has an appointment for this month, if so, delete it
+		else {
+			let newAppointment = {events: [{title: 'My appointment', start: desiredStart, end: desiredEnd}], color:'orange'}
+			$('#calendar').fullCalendar('addEventSource', newAppointment);
+		}
+	}
+
+	getAvailabilityForSelectedCoach(){
+		const index = _.findIndex(this.state.coaches, function(coach) { return coach._id == this.state.selectedCoachId}.bind(this));
+    	return this.state.coaches[index].availability;
+	}
+
+	didLoginWithUser(user) {
+		console.log('App.didLoginWithUser', user);
+		this.setState({user:user});
+	}
 }
+
 
 class Menu extends React.Component{
 	constructor(props){
@@ -60,6 +121,16 @@ class Menu extends React.Component{
 		return (
 			<div className='ui top attached menu'>
 				<Link className='item' to='/'>Home</Link>
+
+	            {this.props.loggedIn ? (
+	              <div>
+	                <Link className='item' to='/me'>{this.props.user.username}</Link>
+	                <Link className='item' to="/logout">Log out</Link>
+	              </div>
+	            ) : (
+	              <Link className='item' to="/login">Sign in</Link>
+	            )}
+	     
 			</div>
 		);
 	}
@@ -74,7 +145,7 @@ class CoachAvailability extends React.Component{
 					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
-					<Calendar coachId={this.props.coachId} coaches={this.props.coaches}/>
+					<Calendar coachId={this.props.coachId} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
 				</div>
 			</div>
 		);
@@ -146,12 +217,85 @@ class CoachBio extends React.Component {
 	}
 }
 
+class Login extends React.Component{
+  constructor(props, context) {
+  	console.log('Login', props, context);
+    super(props, context);
+    context.router;
+    this.state = {
+      error: false
+    }
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  handleSubmit(event) {
+    event.preventDefault()
+
+    const email = this.refs.email.value
+    const pass = this.refs.pass.value
+
+    auth.login(email, pass, (info) => {
+      if (!info.authenticated)
+        return this.setState({ error: true })
+      else {
+      	this.props.onLogin(info.user);
+      }
+
+      const { location } = this.props
+
+      if (location.state && location.state.nextPathname) {
+        this.context.router.replace(location.state.nextPathname)
+      } else {
+        this.context.router.replace('/')
+      }
+    })
+  }
+  render() {
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <label><input ref="email" placeholder="email" defaultValue="joe@example.com" /></label>
+        <label><input ref="pass" placeholder="password" /></label> (hint: password1)<br />
+        <button type="submit">login</button>
+        {this.state.error && (
+          <p>Bad login information</p>
+        )}
+      </form>
+    )
+  }
+}
+
+Login.contextTypes = {
+    router: React.PropTypes.object.isRequired
+  }
+
+const Logout = React.createClass({
+  componentDidMount() {
+    auth.logout()
+  },
+
+  render() {
+    return <p>You are now logged out</p>
+  }
+})
+
+function requireAuth(nextState, replace) {
+  if (!auth.loggedIn()) {
+    replace({
+      pathname: '/login',
+      state: { nextPathname: nextState.location.pathname }
+    })
+  }
+}
+
+
 ReactDOM.render((
-  <Router history={history}>
+  <Router history={browserHistory}>
     <Route path="/" component={App}>
-      <IndexRoute component={CoachList}/>
-      <Route path="coach/:coachId/bio" component={CoachBios}/>
-      <Route path="coach/:coachId/sched" component={CoachAvailability}/>
+      <IndexRoute component={CoachList} onEnter={requireAuth}/>
+      <Route path="login" component={Login} />
+      <Route path="logout" component={Logout} />
+      <Route path="dashboard" onEnter={requireAuth} />
+      <Route path="/coach/:coachId/bio" component={CoachBios}/>
+	  <Route path="/coach/:coachId/sched" component={CoachAvailability}/>
     </Route>
   </Router>
 ), document.getElementById('app'));
