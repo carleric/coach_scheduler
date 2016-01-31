@@ -11,6 +11,7 @@ var EventSchema = mongoose.Schema({
     start: Date,
     end: Date
 });
+var Event = mongoose.model('event', EventSchema);
 
 var UserSchema = mongoose.Schema({ 
 	username: { type:String, required: true, index: { unique: true }},
@@ -67,7 +68,10 @@ const coaches = [
                 events: [
                     {title: 'Open', start: '2016-01-22T08:00', end: '2016-01-22T18:00'}, 
                     {title: 'Open', start: '2016-01-23T08:00', end: '2016-01-23T18:00'}, 
-                    {title: 'Open', start: '2016-01-24T08:00', end: '2016-01-24T18:00'}]
+                    {title: 'Open', start: '2016-01-24T08:00', end: '2016-01-24T18:00'},
+                    {title: 'Open', start: '2016-02-22T08:00', end: '2016-02-22T18:00'}, 
+                    {title: 'Open', start: '2016-03-23T08:00', end: '2016-03-23T18:00'}, 
+                    {title: 'Open', start: '2016-04-24T08:00', end: '2016-04-24T18:00'}]
             ,
             color:colors[0]}
     }, 
@@ -109,3 +113,4 @@ _.each(coaches, function(coach){
 
 
 module.exports.User = User;
+module.exports.Event = Event;

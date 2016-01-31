@@ -14,7 +14,7 @@ class Calendar extends React.Component {
 		console.log('calendar-didMount', this.props);
 		const {calendar} = this.refs;
 		$(calendar).fullCalendar({
-			eventSources: this.getAvailabilityForCoach(),
+			//eventSources: this.getAvailabilityForCoach(),
 			eventClick: this.eventClick,
 			dayClick: this.dayClick,
 			header: {left: 'today prev,next', center: 'title', right: 'month agendaDay'},
@@ -59,9 +59,8 @@ class Calendar extends React.Component {
 				$(calendar).popup('show');
 			}
 		});
-		// $(calendar)
-		//   .popup()
-		// ;
+		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach());
+		$(calendar).fullCalendar('addEventSource', this.props.user.appointments);
 	}
 
 	componentWillUnmount() {
@@ -101,20 +100,15 @@ class Calendar extends React.Component {
 	}
 
 	componentDidUpdate (prevProps) {
-	    const oldCoachId = prevProps ? prevProps.coachId : null;
+	    // const oldCoachId = prevProps ? prevProps.coachId : null;
 	    const newCoachId = this.props.coachId;
 	    console.log('calendar-didUpdate', this.props.coachId);
 
-	    if(oldCoachId != newCoachId) {
-	    	this.showAvailabilityForSelectedCoach(newCoachId);
-	    }
+	    $(calendar).fullCalendar('removeEvents');
+	    $(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach(newCoachId));
+	    $(calendar).fullCalendar('addEventSource', this.props.user.appointments);
+	    $(calendar).fullCalendar('rerenderEvents');
 
-	}
-
-	showAvailabilityForSelectedCoach(newCoachId){
-		$(calendar).fullCalendar('removeEvents');
-		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach(newCoachId));
-		$(calendar).fullCalendar('rerenderEvents');
 	}
 
 	getAvailabilityForCoach(coachId){

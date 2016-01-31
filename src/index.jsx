@@ -15,8 +15,9 @@ class App extends React.Component{
 			loggedIn: auth.loggedIn(),
 			selectedCoachId: '', 
 			coaches: [],
-			user: auth.getUser()
+			user: {}
 		};
+
 		this.updateAuth = this.updateAuth.bind(this);
 		this.makeAppointment = this.makeAppointment.bind(this);
 		this.getAvailabilityForSelectedCoach = this.getAvailabilityForSelectedCoach.bind(this);
@@ -39,7 +40,9 @@ class App extends React.Component{
     	auth.login();
 	}
 	componentDidMount() {
-		console.log('App.componentDidMount')
+		console.log('App.componentDidMount');
+
+		this.state.user = auth.getUser();
 
 		var coachPromise = axios.get('http://localhost:3000/api/coaches');
 		coachPromise.then(function(data){
@@ -71,12 +74,17 @@ class App extends React.Component{
 	makeAppointment(desiredStart) {
 		console.log('makeAppointment', desiredStart);
 
+		//appointments are always one hour
 		const desiredEnd = desiredStart.clone().add(1, 'h');
+
+		//clone desired slot into another time bracket that is 1 minute shorter on both ends for comparing to availability slots
+		const desiredStartForComparing = desiredStart.clone().add(1, 'm');
+		const desiredEndForComparing = desiredEnd.clone().subtract(1, 'm');
 
 		//check if selected time falls within any availability slot for the currently selected coach
 		const availability = this.getAvailabilityForSelectedCoach();
 		const slotIndex = _.findIndex(availability.events, function(slot){
-			return desiredStart.add(1, 'm').isAfter(slot.start) && desiredEnd.subtract(1, 'm').isBefore(slot.end);;
+			return desiredStartForComparing.isAfter(slot.start) && desiredEndForComparing.isBefore(slot.end);;
 		});
 
 		if(slotIndex == -1)
@@ -98,11 +106,49 @@ class App extends React.Component{
 		} 
 
 		//check if this user already has an appointment for this month, if so, delete it
+		const appointments = this.state.user.appointments.events;
+		const existingAppointmentThisMonth = _.find(appointments, appointment=>{
+			return desiredStart.isSame(appointment.start, 'month');
+		});
+		if(existingAppointmentThisMonth) {
+			$(calendar).popup('destroy');
+			$('.ui.modal')
+  				.modal({
+  					selector    : {
+					  close    : '.close, .actions .button',
+					  approve  : '.actions .positive, .actions .approve, .actions .ok',
+					  deny     : '.actions .negative, .actions .deny, .actions .cancel'
+					},
+  					onApprove:()=>{
+  						console.log('approved');
+  						const newAppointment = {title: 'My appointment', start: desiredStart, end: desiredEnd};
+  						var appointmentPromise = axios.put(`http://localhost:3000/api/user/${this.state.user._id}/appointments/${existingAppointmentThisMonth._id}`, newAppointment);
+						appointmentPromise.then(function(res){
+							auth.setUser(res.data.user);
+							this.setState({user: res.data.user});
+						}.bind(this));
+  						return true;
+  					},
+  					onDeny:()=>{
+  						console.log('denied');
+  						return true;
+  					}
+  				})
+  				.modal('show')
+			;
+		}
+
 		else {
-			let newAppointment = {events: [{title: 'My appointment', start: desiredStart, end: desiredEnd}], color:'orange'}
-			$('#calendar').fullCalendar('addEventSource', newAppointment);
+			const newAppointment = {title: 'My appointment', start: desiredStart, end: desiredEnd};
+
+			var appointmentPromise = axios.post(`http://localhost:3000/api/user/${this.state.user._id}/appointments`, newAppointment);
+			appointmentPromise.then(function(res){
+				auth.setUser(res.data.user);
+				this.setState({user: res.data.user});
+			}.bind(this));
 		}
 	}
+
 
 	getAvailabilityForSelectedCoach(){
 		const index = _.findIndex(this.state.coaches, function(coach) { return coach._id == this.state.selectedCoachId}.bind(this));
@@ -141,7 +187,7 @@ class CoachAvailability extends React.Component{
 					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
-					<Calendar coachId={this.props.coachId} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
+					<Calendar user={this.props.user} coachId={this.props.coachId} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
 				</div>
 			</div>
 		);

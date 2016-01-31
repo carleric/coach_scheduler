@@ -31,7 +31,9 @@ module.exports = {
     else
       return {};
   },
-
+  setUser(user) {
+    localStorage.user = JSON.stringify(user);
+  },
   logout(cb) {
     delete localStorage.token;
     delete localStorage.user;
