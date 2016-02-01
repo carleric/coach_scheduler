@@ -19,3 +19,6 @@ web app for coordinating appointments between a coach and a client.  this is a d
 -ical-toolkit
 -node-calendar
 
+#references
+http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#unit-testing-support
+

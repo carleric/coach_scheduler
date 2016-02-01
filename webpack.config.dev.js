@@ -6,10 +6,10 @@ module.exports = {
   entry: [
     'eventsource-polyfill', // necessary for hot reloading with IE
     'webpack-hot-middleware/client',
-    './src/index'
+    './client/src/index.jsx'
   ],
   output: {
-    path: path.join(__dirname, 'dist'),
+    path: path.join(__dirname, './client/dist'),
     filename: 'bundle.js',
     publicPath: '/'
   },
@@ -19,13 +19,13 @@ module.exports = {
   ],
   resolve: {
     extensions: ['', '.js', '.jsx', 'css', '.node'],
-    modulesDirectories: ['node_modules', 'src']
+    modulesDirectories: ['node_modules', './client/src']
   },
   module: {
     loaders: [{
       test: /\js|\.jsx?/,
       loaders: ['babel'],
-      include: path.join(__dirname, 'src'),
+      include: path.join(__dirname, './client/src'),
       exclude: /node_modules/,
     },
     {
