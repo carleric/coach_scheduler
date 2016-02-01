@@ -2,7 +2,7 @@ var path = require('path');
 var express = require('express');
 var session = require('express-session');
 var webpack = require('webpack');
-var config = require('./webpack.config.dev');
+var config = require('../webpack.config.dev');
 var compiler = webpack(config);
 var api = require('./routes/api');
 var passport = require('passport'), 
@@ -31,12 +31,13 @@ if(app.get('env') == 'development') {
 }
 
 //static files
-app.use(express.static('public'));
+app.use(express.static('./client/public'));
 app.use('/api', api);
+
 
 //all requests default to the index
 app.get('/*', function(req, res) {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'client', 'public', 'index.html'));
 });
 
 
@@ -76,7 +77,7 @@ passport.use(new LocalStrategy(
 
 app.post('/login', function(req, res, next) {
   debugger;
-  console.log(`login with user=${req.params.username} pass=${req.params.password}`);
+  console.log(`login with user=${req.body.username} pass=${req.body.password}`);
   passport.authenticate('local', function(err, user, info) {
     console.log("authenticate callback err="+err+" user="+user+" info="+info);
     if (err) { return next(err); }

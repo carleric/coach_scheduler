@@ -9,16 +9,19 @@ web app for coordinating appointments between a coach and a client.  this is a d
 - clients should be able to see their coach’s availability and then book hour long coaching slot. 
 - once a slot is booked, other clients should not be able to book that slot with the same coach. 
 
-# to do:
-- create express app skeleton
-- ensure dependencies are managed with npm (package.json) and bower (bower.json)
-- dockerize the app
+#approach
+- node, express, React web application.  I've used node and express along with backbone.js to create a single page web app before, but I've never used React.  Take this as an opportunity to learn React, and possibly Redux.
+- If possible, put the project into a continuous integration workflow, as an opportunity to learn more about that.  As in: https://egghead.io/series/how-to-write-an-open-source-javascript-library
 
-#libraries under consideration
-- lodash
--ical-toolkit
--node-calendar
+# to do:
+- ensure that test against coach availability also checks existing appointments
+- show coach as unavailable during existing appointments
+- screen to list your appointments
+- continuous integration
+- redux state
 
 #references
+https://facebook.github.io/react/docs/thinking-in-react.html
 http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#unit-testing-support
+https://egghead.io/series/how-to-write-an-open-source-javascript-library
 
