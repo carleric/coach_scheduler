@@ -1,6 +1,6 @@
 var path = require('path');
 var express = require('express');
-var errorhandler = require('errorhandler')
+//var errorhandler = require('errorhandler')
 var session = require('express-session');
 var webpack = require('webpack');
 var config = require('../webpack.config.dev');
