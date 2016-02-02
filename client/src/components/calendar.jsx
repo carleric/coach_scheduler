@@ -59,7 +59,7 @@ class Calendar extends React.Component {
 				$(calendar).popup('show');
 			}
 		});
-		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach());
+		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForSelectedCoach());
 		$(calendar).fullCalendar('addEventSource', this.props.user.appointments);
 	}
 
@@ -105,17 +105,14 @@ class Calendar extends React.Component {
 	    console.log('calendar-didUpdate', this.props.coachId);
 
 	    $(calendar).fullCalendar('removeEvents');
-	    $(calendar).fullCalendar('addEventSource', this.getAvailabilityForCoach(newCoachId));
+	    $(calendar).fullCalendar('addEventSource', this.getAvailabilityForSelectedCoach());
 	    $(calendar).fullCalendar('addEventSource', this.props.user.appointments);
 	    $(calendar).fullCalendar('rerenderEvents');
 
 	}
 
-	getAvailabilityForCoach(coachId){
-		const id = coachId == undefined ? this.props.coachId : coachId;
-		if(id == undefined || id == 0 || id == '' || this.props.coaches == undefined || this.props.coaches.length == 0) return;
-		const index = _.findIndex(this.props.coaches, function(coach) { return coach._id == id});
-    	return this.props.coaches[index].availability;
+	getAvailabilityForSelectedCoach(){
+		return this.props.coach.availability;
 	}
 
 	render() {

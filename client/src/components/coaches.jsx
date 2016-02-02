@@ -48,7 +48,7 @@ class CoachRow extends React.Component {
 		console.log('coachrow-willReceiveProps', nextProps);
 	}
 	render() {
-		itemStyle.backgroundColor = this.props.coach.availability.color;
+		itemStyle.backgroundColor = this.props.coach.in_office.color;
 		const coachBioLink = `/coach/${this.props.coach._id}/bio`;
 		const coachAvailabilityLink = `/coach/${this.props.coach._id}/sched`;
 		return (

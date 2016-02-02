@@ -3,6 +3,7 @@ var router = express.Router();
 var User = require('../models/user.js').User;
 var Appointment = require('../models/appointment.js').Appointment;
 var db = require('../db.js');
+var _ = require('lodash');
 
 
 /* GET users listing. */
@@ -11,37 +12,44 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/coaches', function(req, res) {
+
   User
-    .find({type: 'coach'}, function(err, coaches){
-        if(err) console.log(err);
+    .find({type: 'coach'})
+    .lean()
+    .exec(function(err, coaches){
+        if(err) {console.log(err); return;}
+        console.log('sending response');
         res.send({status:'OK', coaches: coaches});
   }); 
  
 });
 
+router.get('/coaches/:coachId', function(req, res) {
+  var coachId = req.params.coachId;
+  User
+    .findById(coachId)
+    //.populate('appointments.events')
+    .lean()
+    .exec(function(err, coach){
+        if(err) {console.log(err); return;}
+         Appointment
+           .find({coach: coachId})
+           .exec(function(err, appointments){
+            var availability = User.getAvailability(coach.in_office, appointments);
+            coach.appointments.events = appointments;
+            coach.availability = availability;
+            res.send({status:'OK', coach: coach});
+          });
+  }); 
+ 
+});
+
 //new appointment
-router.post('/appointments', function(req, res) {
-  // var userId = req.params['userId'];
-  // console.log('new appointment for userId=' + userId + ' body=' + req.body);
-  // User
-  //   .findById(userId, function(err, user){
-  //       if(err) console.log(err);
-  //       var eventModel = new Event(req.body);
-  //       user.appointments.events.push(eventModel);
-  //       user.save(function(err){
-  //           if(err) {
-  //               console.log(err);
-  //               return;
-  //           }
-  //           console.log('user saved new appointment');
-  //           res.send({status: 'OK', user: user});
-  //       });
-  //   });
-        
+router.post('/appointments', function(req, res) { 
 
   var appointment = new Appointment(req.body);
   appointment.save(function(err){
-  	if(err) return handleError(err);
+  	if(err) {console.log(err); return;}
 
   	console.log('new appointment saved');
   	res.send({status: 'OK', appointment: appointment})
@@ -52,34 +60,12 @@ router.post('/appointments', function(req, res) {
 
 //update appointment
 router.put('/appointments/:appointmentId', function(req, res) {
-  // var userId = req.params['userId'];
   var appointmentId = req.params['appointmentId'];
   console.log(`updating appointment ${appointmentId}`);
-  // User
-  //   .findById(userId, function(err, user){
-  //       if(err) console.log(err);
-  //       appointment = user.appointments.events.id(appointmentId);
-        
-  //   	if(appointment == undefined) {
-  //   		console.log('error finding appointment for update');
-  //   		return;
-  //   	}
-		// appointment.start = req.body.start;
-		// appointment.end = req.body.end;
-  //       user.save(function(err){
-  //           if(err) {
-  //               console.log(err);
-  //               return;
-  //           }
-  //           console.log('user updated appointment');
-  //           res.send({status: 'OK', user: user});
-  //       });
-        
-  //   });
 
 	Appointment
     .findById(appointmentId, function(err, appointment){
-      if(err) handleError(err);
+      if(err) {console.log(err); return;}
       console.log('retrieved appointment '+appointment._id);
       appointment.start = req.body.start;
       appointment.end = req.body.end;
@@ -87,7 +73,7 @@ router.put('/appointments/:appointmentId', function(req, res) {
       appointment.client = req.body.client;
       appointment.coach = req.body.coach;
       appointment.save(function(err){
-        if(err) return handleError(err);
+        if(err) {console.log(err); return;}
 
         console.log('appointment updated');
         res.send({status:'OK', appointment: appointment});
@@ -97,10 +83,7 @@ router.put('/appointments/:appointmentId', function(req, res) {
         
 }); 
 
-var handleError = function(err) {
-	console.log('!!!error: ' + err);
-  //return;
-}
+
  
 
 module.exports = router;

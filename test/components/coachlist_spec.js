@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import React from 'react/addons';
-import CoachList from '../../src/components/coaches';
-import test_data from '../../test_data.js';
+import {CoachList} from '../../client/src/components/coaches';
+import test_data from '../../server/test_data.js';
 import _ from 'lodash';
 
 const {renderIntoDocument, scryRenderedDOMComponentsWithClass} = React.addons.TestUtils;
@@ -14,7 +14,7 @@ describe('CoachList', () => {
 	    );
 
 	    const segments = scryRenderedDOMComponentsWithClass(component, 'segment');
-	    expect(segments.length).to.equal(2);
+	    expect(segments.length).to.equal(test_data.coaches_with_ids.length);
 
 	  });
 	});

@@ -18,14 +18,15 @@ class App extends React.Component{
 		this.state = {
 			loggedIn: auth.loggedIn(),
 			selectedCoachId: '', 
+			selectedCoach: {},
 			coaches: [],
 			user: {}
 		};
 
 		this.updateAuth = this.updateAuth.bind(this);
 		this.makeAppointment = this.makeAppointment.bind(this);
-		this.getCoach = this.getCoach.bind(this);
-		this.getAvailabilityForCoach = this.getAvailabilityForCoach.bind(this);
+		this.fetchCoach = this.fetchCoach.bind(this);
+		this.fetchCoaches = this.fetchCoaches.bind(this);
 		this.didLoginWithUser = this.didLoginWithUser.bind(this);
 		this.updateUserWithAppointments = this.updateUserWithAppointments.bind(this);
 		this.rescheduleAppointment = this.rescheduleAppointment.bind(this);
@@ -37,6 +38,13 @@ class App extends React.Component{
 	}
 	componentWillReceiveProps(props) {
 		console.log('App willReceiveProps', props, this.state);
+		if(this.state.selectedCoachId != props.params.coachId){
+			//refresh coach data
+			this.fetchCoach(props.params.coachId, (coach)=>{
+				console.log('got coach ' + coach.username);
+				this.setState({selectedCoach: coach});
+			});
+		}
 		this.setState({selectedCoachId: props.params.coachId});
 	}
 
@@ -49,10 +57,16 @@ class App extends React.Component{
 	componentDidMount() {
 		console.log('App.componentDidMount');
 
-		this.getCoaches((coaches)=>{
+		this.fetchCoaches((coaches)=>{
 			console.log('got coaches ' +coaches.length);
 			this.setState({coaches: coaches});
 		});
+	
+		this.fetchCoach(this.state.selectedCoachId, (coach)=>{
+			console.log('got coach ' + coach.username);
+			this.setState({selectedCoach: coach});
+		});
+		
 		this.state.user = auth.getUser();
 	}
 	render() {
@@ -68,7 +82,13 @@ class App extends React.Component{
 				
 				 
 					<div className='ui segment'>
-						{this.props.children && React.cloneElement(this.props.children, {user: this.state.user, coachId: this.state.selectedCoachId, coaches: this.state.coaches, makeAppointment: this.makeAppointment, onLogin: this.didLoginWithUser})} 
+						{this.props.children && React.cloneElement(this.props.children, {
+							user: this.state.user, 
+							coachId: this.state.selectedCoachId, 
+							coach: this.state.selectedCoach,
+							coaches: this.state.coaches, 
+							makeAppointment: this.makeAppointment, 
+							onLogin: this.didLoginWithUser})} 
 					</div>
 
 				</div>
@@ -76,7 +96,7 @@ class App extends React.Component{
 		);
 	}
 
-	getCoaches(cb){
+	fetchCoaches(cb){
 		var coachPromise = axios.get('http://localhost:3000/api/coaches');
 		coachPromise.then(function(res){
 			console.log('getCoaches returned '+ res.data.status);
@@ -84,7 +104,13 @@ class App extends React.Component{
 		}.bind(this));
 	}
 
-
+	fetchCoach(coachId, cb){
+		var coachPromise = axios.get(`http://localhost:3000/api/coaches/${coachId}`);
+		coachPromise.then(function(res){
+			console.log('getCoaches returned '+ res.data.status);
+			cb(res.data.coach);
+		}.bind(this));
+	}
 
 	//called from calendar component, user clicked a time slot
 	makeAppointment(desiredStart) {
@@ -100,8 +126,9 @@ class App extends React.Component{
 
 		//validation 1: check if selected time falls within any availability slot for the currently selected coach
 		//selected time falls outside available slots for the selected coach, notify user
-		const coach = this.getCoach(this.state.selectedCoachId);
-		const availability = this.getAvailabilityForCoach(this.state.selectedCoachId);
+		const coach = this.state.selectedCoach;
+		//const availability = this.getAvailabilityForCoach(this.state.selectedCoachId);
+		const availability = this.state.selectedCoach.availability;
 		const slotIndex = _.findIndex(availability.events, function(slot){
 			return desiredStartForComparing.isAfter(slot.start) && desiredEndForComparing.isBefore(slot.end);;
 		});
@@ -124,6 +151,7 @@ class App extends React.Component{
 							appointments.push(_appointment);
 							this.updateUserWithAppointments(appointments);
 							//existingAppointmentThisMonth = _appointment;
+							
 						})
   						return true;
   					});
@@ -197,15 +225,16 @@ class App extends React.Component{
 	updateUserWithAppointments(appointments){
 		const user = _.cloneDeep(this.state.user);
 		user.appointments.events = appointments;
+		
+
+		//refresh coach data
+		this.fetchCoach(this.state.selectedCoachId, (coach)=>{
+			console.log('got coach ' + coach.username);
+			this.setState({selectedCoach: coach});
+		});
+
 		auth.setUser(user);
 		this.setState({user: user});
-	}
-
-	getCoach(coachId){
-		return _.find(this.state.coaches, function(coach) { return coach._id == coachId});
-	}
-	getAvailabilityForCoach(coachId){
-		return this.getCoach(coachId).availability;
 	}
 
 	didLoginWithUser(user) {
@@ -224,7 +253,7 @@ class CoachAvailability extends React.Component{
 					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
-					<Calendar user={this.props.user} coachId={this.props.coachId} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
+					<Calendar user={this.props.user} coachId={this.props.coachId} coach={this.props.coach} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
 				</div>
 			</div>
 		);
