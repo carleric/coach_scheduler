@@ -247,14 +247,14 @@ class App extends React.Component{
 	}
 
 	makeNewAppointment(appointment, cb){
-		var appointmentPromise = axios.post(`http://localhost:3000/api/appointments`, appointment);
+		var appointmentPromise = axios.post(`/api/appointments`, appointment);
 		appointmentPromise.then(function(res){
 			cb(res.data.appointment);
 		});
 	}
 
 	rescheduleAppointment(existingAppointmentId, newAppointment, cb){
-		var appointmentPromise = axios.put(`http://localhost:3000/api/appointments/${existingAppointmentId}`, newAppointment);
+		var appointmentPromise = axios.put(`/api/appointments/${existingAppointmentId}`, newAppointment);
 		appointmentPromise.then(function(res){
 			cb(res.data.appointment);
 		});
