@@ -31,7 +31,7 @@ router.get('/coach/:coachId', function(req, res) {
     .lean()
     .exec(function(err, coach){
         //if(err) return errorHandler(err, res);
-        console.log('/coaches/:coachId =>' + coach);
+        console.log('/coach/:coachId =>' + coachId);
         if(err || coach == null || coach == undefined) {
           res.status(500).send({error: 'not found'});
           return;

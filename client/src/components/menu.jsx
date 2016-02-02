@@ -9,9 +9,9 @@ class Menu extends React.Component{
 	render() {
 		return (
 			<div className='ui top attached menu'>
-				<Link className='item' activeClassName='item active' to='/'>Home</Link>
-				{this.props.loggedIn && <Link className='item' to='/me' activeClassName='item active'>{this.props.user.username}</Link>}
-				{this.props.loggedIn && <Link className='item' to="/logout" activeClassName='item active'>Log out</Link> || <Link className='item' activeClassName='item active' to="/login">Sign in</Link>}
+				<Link className='item' activeClassName='item active' to='/'>Coaches</Link>
+				{this.props.loggedIn && <Link className='item' to='/me' activeClassName='item active'>Appointments</Link>}
+				{this.props.loggedIn && <div className='right menu'><Link className='item' to="/logout" activeClassName='item active'>Log out</Link></div> || <div className='right menu'><Link className='item' activeClassName='item active' to="/login">Sign in</Link></div>}
 			</div>
 			);
 	}

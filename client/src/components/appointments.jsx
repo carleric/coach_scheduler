@@ -15,10 +15,11 @@ class Appointments extends React.Component {
 	}
 	render(){
 		console.log('appointments-render', this.props);
+		const title = this.props.user.username + "'s Appointments";
 		const noneMsg = "You don't have any appointments yet.";
 		return (
 			<div>
-				<h2 className='nomargin'>My Appointments</h2> 
+				<h2 className='nomargin'>{title}</h2> 
 				<div className='ui segments'>
 					{this.props.user.appointments.events.length > 0 && this.props.user.appointments.events.map(appointment => <AppointmentRow key={appointment._id} appointment={appointment}/> )}
 					{this.props.user.appointments.events.length == 0 && <div>{noneMsg}</div> }
