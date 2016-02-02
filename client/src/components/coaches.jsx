@@ -21,9 +21,9 @@ var itemStyle = {
 	}
 	render() {
 		return (
-			<div className='coachList'>
+			<div className='coachListContainer'>
 				<h2 className='nomargin'>Coaches</h2> 
-				<div className='ui segments'>
+				<div className='ui segments coachListContent'>
 				{this.props.coaches.map(coach => <CoachRow key={coach._id} coach={coach}/> )}
 				</div>
 			</div>

@@ -2,12 +2,12 @@
 	margin: 0;
 }
 
-.coachList ul{
-	padding-left: 0;
+.coachListContainer{
+	height: 600px;
+	overflow:auto;
 }
-
-.coachList li {
-	list-style-type: none;
+.coachListContent{
+	overflow: auto;
 }
 
 .colorLegend {

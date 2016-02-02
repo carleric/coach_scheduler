@@ -8,10 +8,29 @@ class Menu extends React.Component{
 
 	render() {
 		return (
-			<div className='ui top attached menu'>
-				<Link className='item' activeClassName='item active' to='/'>Coaches</Link>
+			<div className='ui grey inverted bottom attached small menu'>
+				{this.props.loggedIn && <Link className='item' activeClassName='item active' to='/coaches'>Coaches</Link>}
 				{this.props.loggedIn && <Link className='item' to='/me' activeClassName='item active'>Appointments</Link>}
-				{this.props.loggedIn && <div className='right menu'><Link className='item' to="/logout" activeClassName='item active'>Log out</Link></div> || <div className='right menu'><Link className='item' activeClassName='item active' to="/login">Sign in</Link></div>}
+				{this.props.loggedIn 
+					&& <div className='right menu'>
+							<div className='item'>
+								<div className='ui labeled small button'>
+									<div className='ui small button'>
+										<Link to="/logout">Log out</Link>
+									</div> 
+									<div className='ui basic label'>
+										{this.props.user.username}
+									</div>
+								</div>
+							</div>
+						</div>
+					|| <div className='right menu'>
+							<div className='item'>
+								<div className='ui small button'>
+									<Link to="/login">Sign in</Link>
+								</div>
+							</div>
+						</div>}
 			</div>
 			);
 	}

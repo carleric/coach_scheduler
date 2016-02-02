@@ -329,12 +329,15 @@ function requireAuth(nextState, replace) {
 ReactDOM.render((
   <Router history={browserHistory}>
     <Route path="/" component={App}>
-      <IndexRoute component={CoachList} onEnter={requireAuth}/>
+      <IndexRoute component={CoachList} />
       <Route path="login" component={Login} />
-      <Route path="logout" component={Logout} />
- 	  <Route path="coach/:coachId/bio" component={CoachBios}/>
-	  <Route path="coach/:coachId/sched(/:dateMode)" component={CoachAvailability}/>
-	  <Route path="me" component={Appointments}/>
+	  <Route path="logout" component={Logout} />
+      <Route path="dashboard" onEnter={requireAuth}>
+	      <Route path="/coaches" component={CoachList}/>
+	 	  <Route path="/coach/:coachId/bio" component={CoachBios}/>
+		  <Route path="/coach/:coachId/sched(/:dateMode)" component={CoachAvailability}/>
+		  <Route path="/me" component={Appointments}/>
+	  </Route>
     </Route>
   </Router>
 ), document.getElementById('app'));

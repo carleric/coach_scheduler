@@ -133,20 +133,20 @@ var User = mongoose.model('User', UserSchema);
 
 
 //repopulate db with test users
-// var users = require('../test_data').users;
-// _.each(users, function(user){
-//     console.log(`creating test user ${user.username}`);
-//     var removal = User.remove({username: user.username});
-//     removal.then(function(err){
-//         User.create(user, function(err, _user){
-//             if(err) {
-//                 console.log(err);
-//                 return;
-//             }
-//             console.log('user created');
-//         });
-//     })
-// });
+var users = require('../test_data').users;
+_.each(users, function(user){
+    console.log(`creating test user ${user.username}`);
+    var removal = User.remove();
+    removal.then(function(err){
+        User.create(user, function(err, _user){
+            if(err) {
+                console.log(err);
+                return;
+            }
+            console.log('user created');
+        });
+    })
+});
 
 
 module.exports.User = User;
