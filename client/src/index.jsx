@@ -28,9 +28,12 @@ class App extends React.Component{
 		this.makeAppointment = this.makeAppointment.bind(this);
 		this.fetchCoach = this.fetchCoach.bind(this);
 		this.fetchCoaches = this.fetchCoaches.bind(this);
+		this.refreshSelectedCoach = this.refreshSelectedCoach.bind(this);
 		this.didLoginWithUser = this.didLoginWithUser.bind(this);
 		this.updateUserWithAppointments = this.updateUserWithAppointments.bind(this);
 		this.rescheduleAppointment = this.rescheduleAppointment.bind(this);
+		this.showPrompt = this.showPrompt.bind(this);
+		this.showReschedulePrompt = this.showReschedulePrompt.bind(this);
 	}
 	
 
@@ -52,7 +55,6 @@ class App extends React.Component{
 		if(this.state.selectedCoachId != newProps.params.coachId
 			&& newProps.params.coachId != undefined){
 			this.setState({selectedCoachId: newProps.params.coachId});
-			//refresh coach data
 			this.fetchCoach(newProps.params.coachId, (coach)=>{
 				console.log('got coach ' + coach.username);
 				this.setState({selectedCoach: coach});
@@ -106,12 +108,8 @@ class App extends React.Component{
 		});
 	
 		if(this.state.selectedCoachId != undefined) {
-			this.fetchCoach(this.state.selectedCoachId, (coach)=>{
-				console.log('got coach ' + coach.username);
-				this.setState({selectedCoach: coach});
-			});
+			this.refreshSelectedCoach();
 		}
-		//this.state.user = auth.getUser();
 	}
 
 	
@@ -135,6 +133,13 @@ class App extends React.Component{
 			console.log('getCoaches returned '+ res.data.status);
 			cb(res.data.coach);
 		}.bind(this));
+	}
+
+	refreshSelectedCoach(){
+		this.fetchCoach(this.state.selectedCoachId, (coach)=>{
+			console.log('got coach ' + coach.username);
+			this.setState({selectedCoach: coach});
+		});
 	}
 
 
@@ -180,12 +185,19 @@ class App extends React.Component{
   							//attributes from this will be copied
   							this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)),  
   							//callback: do this when server replies with updated appointment
-  							(_appointment)=>{
+  							(_appointment, err)=>{
   								//replace old appointment with new one
-								//const _appointments = _.filter(appointments, (appointment)=>{appointment._id != existingAppointmentThisMonth._id});
-								//_appointments.push(_appointment);
-								appointments[existingAppointmentThisMonthIndex] = _appointment;
-								this.updateUserWithAppointments(appointments);
+								if(err) {
+									this.showPrompt(
+										'Appointment conflict', 
+										err, 
+										false,
+										()=>{this.refreshSelectedCoach();});
+								}
+								else if(_appointment) {
+									appointments[existingAppointmentThisMonthIndex] = _appointment;
+									this.updateUserWithAppointments(appointments);
+								}
 							});
   						return true;
   					});
@@ -193,27 +205,46 @@ class App extends React.Component{
 
 		//no other appointments have been made this month, make a new one
 		else {
-			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)), (_appointment)=>{
-				const appointments = this.state.user.appointments.events;
-				appointments.push(_appointment);
-				this.updateUserWithAppointments(appointments);
+			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)), (_appointment, err)=>{
+				if(err) {
+					this.showPrompt(
+						'Appointment conflict', 
+						err, 
+						false,
+						()=>{this.refreshSelectedCoach();});
+				}
+				else if(_appointment) {
+					const appointments = this.state.user.appointments.events;
+					appointments.push(_appointment);
+					this.updateUserWithAppointments(appointments);
+				}
 			})
 		}
 	}
 
 	showReschedulePrompt(onApproval){
+		this.showPrompt(
+			'Existing Appointment', 
+			'You already have an appointment scheduled for this month.  Would you like to replace it?', 
+			true,
+			onApproval);
+	}
+
+	showPrompt(headerText, descriptionText, showCancel, onApproval){
 		$(calendar).popup('destroy');
-			$('.ui.modal')
-  				.modal({
-  					selector    : {
-					  close    : '.close, .actions .button',
-					  approve  : '.actions .positive, .actions .approve, .actions .ok',
-					  deny     : '.actions .negative, .actions .deny, .actions .cancel'
-					},
-  					onApprove:onApproval
-  				})
-  				.modal('show')
-			;
+		$('.ui.modal .header').text(headerText);
+		$('.ui.modal .description').text(descriptionText);
+		if(!showCancel) { $('ui.modal .cancel').hide(); } else {$('ui.modal .cancel').show();}
+		$('.ui.modal')
+			.modal({
+				selector    : {
+			  close    : '.close, .actions .button',
+			  approve  : '.actions .positive, .actions .approve, .actions .ok',
+			  deny     : '.actions .negative, .actions .deny, .actions .cancel'
+			},
+				onApprove:onApproval
+			})
+			.modal('show');
 	}
 
 	notifyUser(title, message){
@@ -249,14 +280,22 @@ class App extends React.Component{
 	makeNewAppointment(appointment, cb){
 		var appointmentPromise = axios.post(`/api/appointments`, appointment);
 		appointmentPromise.then(function(res){
-			cb(res.data.appointment);
+			if(res.data.status == 'OK') {
+				cb(res.data.appointment);
+			} else {
+				cb(null, res.data.message);
+			}
 		});
 	}
 
 	rescheduleAppointment(existingAppointmentId, newAppointment, cb){
 		var appointmentPromise = axios.put(`/api/appointments/${existingAppointmentId}`, newAppointment);
 		appointmentPromise.then(function(res){
-			cb(res.data.appointment);
+			if(res.data.status == 'OK') {
+				cb(res.data.appointment);
+			} else {
+				cb(null, res.data.message);
+			}
 		});
 	}
 

@@ -14,9 +14,11 @@ web app for coordinating appointments between a coach and a client.  this is a d
 - If possible, put the project into a continuous integration workflow, as an opportunity to learn more about that.  As in: https://egghead.io/series/how-to-write-an-open-source-javascript-library
 
 # to do:
-- conflict detection in server when making appointment (in case where client data was stale)
 - continuous integration
 - redux state
+- docker deployment
+- better logging (Winston or Bunyan?)
+- more test coverage
 
 #references
 https://facebook.github.io/react/docs/thinking-in-react.html
