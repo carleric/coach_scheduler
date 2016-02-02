@@ -6,6 +6,7 @@ import {CoachList, CoachBios} from './components/coaches';
 import Calendar from './components/calendar';
 import {Menu} from './components/menu';
 import {Login, Logout} from './components/auth';
+import {Appointments} from './components/appointments';
 import axios from 'axios';
 import auth from './auth';
 import _ from 'lodash';
@@ -20,7 +21,7 @@ class App extends React.Component{
 			selectedCoachId: '', 
 			selectedCoach: {},
 			coaches: [],
-			user: {}
+			user: auth.getUser()
 		};
 
 		this.updateAuth = this.updateAuth.bind(this);
@@ -140,26 +141,33 @@ class App extends React.Component{
 
 		//validation 2: check if this user already has an appointment for this month, if so, prompt for rescheduling
 		const appointments = this.state.user.appointments.events;
-		let existingAppointmentThisMonth = _.find(appointments, appointment=>{
+		const existingAppointmentThisMonthIndex = _.findIndex(appointments, appointment=>{
 			return desiredStart.isSame(appointment.start, 'month');
 		});
-		if(existingAppointmentThisMonth) {
+		if(existingAppointmentThisMonthIndex != -1) {
+			const existingAppointmentThisMonth = appointments[existingAppointmentThisMonthIndex];
 			this.showReschedulePrompt(()=>{
   						console.log('approved appointment reschedule');
-  						this.rescheduleAppointment(existingAppointmentThisMonth, this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, `call with ${coach.username}`), (_appointment)=>{
-							const appointments = _.filter(this.state.user.appointments.events, (appointment)=>{appointment._id != existingAppointmentThisMonth._id});
-							appointments.push(_appointment);
-							this.updateUserWithAppointments(appointments);
-							//existingAppointmentThisMonth = _appointment;
-							
-						})
+  						this.rescheduleAppointment(
+  							//id is sent to server to update existing record
+  							existingAppointmentThisMonth._id, 
+  							//attributes from this will be copied
+  							this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)),  
+  							//callback: do this when server replies with updated appointment
+  							(_appointment)=>{
+  								//replace old appointment with new one
+								//const _appointments = _.filter(appointments, (appointment)=>{appointment._id != existingAppointmentThisMonth._id});
+								//_appointments.push(_appointment);
+								appointments[existingAppointmentThisMonthIndex] = _appointment;
+								this.updateUserWithAppointments(appointments);
+							});
   						return true;
   					});
 		}
 
 		//no other appointments have been made this month, make a new one
 		else {
-			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, `call with ${coach.username}`), (_appointment)=>{
+			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)), (_appointment)=>{
 				const appointments = this.state.user.appointments.events;
 				appointments.push(_appointment);
 				this.updateUserWithAppointments(appointments);
@@ -198,6 +206,10 @@ class App extends React.Component{
 			}, 2000);
 	}
 
+	generateTitle(coach, desiredStart) {
+		return `${moment(desiredStart).format('MMMM')} call with ${coach.username}`;
+	}
+
 	generateNewAppointment(clientId, coachId, desiredStart, desiredEnd, title){
 		return {
 				title: title, 
@@ -215,8 +227,8 @@ class App extends React.Component{
 		});
 	}
 
-	rescheduleAppointment(existingAppointment, newAppointment, cb){
-		var appointmentPromise = axios.put(`http://localhost:3000/api/appointments/${existingAppointment._id}`, newAppointment);
+	rescheduleAppointment(existingAppointmentId, newAppointment, cb){
+		var appointmentPromise = axios.put(`http://localhost:3000/api/appointments/${existingAppointmentId}`, newAppointment);
 		appointmentPromise.then(function(res){
 			cb(res.data.appointment);
 		});
@@ -277,9 +289,9 @@ ReactDOM.render((
       <IndexRoute component={CoachList} onEnter={requireAuth}/>
       <Route path="login" component={Login} />
       <Route path="logout" component={Logout} />
-      <Route path="dashboard" onEnter={requireAuth} />
-      <Route path="/coach/:coachId/bio" component={CoachBios}/>
-	  <Route path="/coach/:coachId/sched" component={CoachAvailability}/>
+ 	  <Route path="coach/:coachId/bio" component={CoachBios}/>
+	  <Route path="coach/:coachId/sched" component={CoachAvailability}/>
+	  <Route path="me" component={Appointments}/>
     </Route>
   </Router>
 ), document.getElementById('app'));

@@ -15,7 +15,7 @@ var UserSchema = mongoose.Schema({
 	type: {type:String, required:true, default:'client'}, //coach or client
 	password: {type:String, required:true},
     images: mongoose.Schema.Types.Mixed, //dictionary, like {thumb: String, small: String, medium: String, large: String} with file paths 
-    bio: String, //optional, for introducint coaches to clients
+    bio: String, //optional, for introducing coaches to clients
     in_office: { events: [Availability.AvailabilitySchema], color: String}, //only exposed to coaches, not clients, assume that input functions will keep this sorted chronologically
     appointments: //both clients and coaches have appointments (with eachother)
         { 

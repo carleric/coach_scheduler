@@ -1,6 +1,7 @@
 var _ = require('lodash');
 
 //mock data
+const bio = " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
 const colors = ['LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen'];
 const availabilityEvents = [
                     {title: 'Open', start: '2016-01-22T08:00', end: '2016-01-22T18:00'}, 
@@ -15,14 +16,14 @@ const users = [
         type: 'coach', 
         password: 'foo', 
         images: {medium: '/images/matthew.png'},
-        in_office: {events: availabilityEvents, color: colors[0]}        
+        in_office: {events: availabilityEvents, color: colors[0]} 
     }, 
     {
         username:'Molly Bar', 
         type: 'coach', 
         password: 'bar', 
         images:  {medium: '/images/molly.png'},
-        in_office:  {events: availabilityEvents, color: colors[1]}  
+        in_office:  {events: availabilityEvents, color: colors[1]} 
         
     }, 
     {
@@ -30,6 +31,15 @@ const users = [
         type: 'client', 
         password: 'zip', 
         images:  {medium: '/images/elyse.png'},
+        in_office: {events: [], color: colors[2]},
+
+        
+    },
+    {
+        username:'Joe', 
+        type: 'client', 
+        password: 'joe', 
+        images:  {medium: '/images/matthew.png'},
         in_office: {events: [], color: colors[2]}
 
         
@@ -42,11 +52,11 @@ const coaches = _.cloneDeep(_.filter(users, function(user) {
     return user.type == 'coach';
 }));
 
-_.each(coaches, function(coach) {
+_.each(users, function(user) {
     
-    coach.bio = coach.username + " Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum";
-    coach.in_office.events = coach.in_office.events.map(function(event) {
-        event.title = coach.name;
+    user.bio = user.username + bio;
+    user.in_office.events = user.in_office.events.map(function(event) {
+        event.title = user.name;
         return event;
     });
     

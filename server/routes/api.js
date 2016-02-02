@@ -15,7 +15,7 @@ router.get('/coaches', function(req, res) {
 
   User
     .find({type: 'coach'})
-    .lean()
+    //.lean()
     .exec(function(err, coaches){
         if(err) {console.log(err); return;}
         console.log('sending response');

@@ -14,11 +14,11 @@ web app for coordinating appointments between a coach and a client.  this is a d
 - If possible, put the project into a continuous integration workflow, as an opportunity to learn more about that.  As in: https://egghead.io/series/how-to-write-an-open-source-javascript-library
 
 # to do:
-- ensure that test against coach availability also checks existing appointments
-- show coach as unavailable during existing appointments
+- conflict detection in server when making appointment (in case where client data was stale)
 - screen to list your appointments
 - continuous integration
 - redux state
+- client user types shouldn't need in_office attribute in test data.  find bug.
 
 #references
 https://facebook.github.io/react/docs/thinking-in-react.html

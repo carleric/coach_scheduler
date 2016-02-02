@@ -9,6 +9,7 @@ var passport = require('passport'),
 LocalStrategy = require('passport-local').Strategy;
 var bodyParser = require('body-parser');
 var User = require('./models/user.js').User;
+var Appointment = require('./models/appointment.js').Appointment;
 
 
 //express instantiation, basic web server
@@ -45,24 +46,33 @@ passport.use(new LocalStrategy(
   function(username, password, done) {
     
     console.log('passport LocalStrategy username='+username);
-    User.findOne({ username: username }, function(err, user) {
+    User
+      .findOne({ username: username })
+      //.lean()
+      //.populate('appointments.events')
+      .exec(function(err, user) {
       if (err) { return done(err); }
       if (!user) {
         return done(null, false, 'Incorrect username.');
       }
-      user.comparePassword(password, function(err, isMatch) {
-        debugger;
-        if (err) { 
-          console.log('error='+err);
-          return done(err); }
-        if(isMatch) {
-          console.log('authentication success');
-          return done(null, user);
-        } else {
-          console.log('incorrect password');
-          return done(null, false, 'Incorrect password.' );
-        }
-      });
+      Appointment
+           .find({client: user._id})
+           .exec(function(err, appointments){
+            
+            user.appointments.events = appointments;
+            user.comparePassword(password, function(err, isMatch) {
+              if (err) { 
+                console.log('error='+err);
+                return done(err); }
+              if(isMatch) {
+                console.log('authentication success');
+                return done(null, user);
+              } else {
+                console.log('incorrect password');
+                return done(null, false, 'Incorrect password.' );
+              }
+            });
+          });
     });
   }
 ));
