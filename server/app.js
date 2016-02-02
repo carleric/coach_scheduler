@@ -1,10 +1,8 @@
 var path = require('path');
 var express = require('express');
-//var errorhandler = require('errorhandler')
 var session = require('express-session');
 var webpack = require('webpack');
-var config = require('../webpack.config.dev');
-var compiler = webpack(config);
+var webpackDevConfig = require('../webpack.config.dev');
 var api = require('./routes/api');
 var passport = require('passport'), 
 LocalStrategy = require('passport-local').Strategy;
@@ -16,7 +14,6 @@ var Appointment = require('./models/appointment.js').Appointment;
 //express instantiation, basic web server
 var app = express();
 
-
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(session({ cookie: { maxAge: 60000 }, resave: false, secret: 'cat keyboard', saveUninitialized: true}));
@@ -24,29 +21,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //development middleware 
-//if(app.get('env') == 'development') {
+if(app.get('env') == 'development') {
+  var compiler = webpack(webpackDevConfig);
 	app.use(require('webpack-dev-middleware')(compiler, {
 	  noInfo: false,
-	  publicPath: config.output.publicPath
+	  publicPath: webpackDevConfig.output.publicPath
 	}));
 	app.use(require('webpack-hot-middleware')(compiler));
-  //app.use(errorhandler());
-//} 
-// else 
-// {
-  // returns a Compiler instance
-// var compiler = webpack({
-//     // configuration
-//     noInfo: false,
-//     publicPath: config.output.publicPath
-// });
-
-// compiler.run(function(err, stats) {
-//     if(err){
-//       console.log(err);
-//     }
-// });
-// }
+} 
 
 //static files
 app.use(express.static('./client/public'));

@@ -1,4 +1,5 @@
 coding_question.txt
 node_modules
 client/public/lib
-client/dist/bundle.js
+client/public/bundle.js
+client/public/bundle.js.map

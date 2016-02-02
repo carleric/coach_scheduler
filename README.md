@@ -22,4 +22,5 @@ web app for coordinating appointments between a coach and a client.  this is a d
 https://facebook.github.io/react/docs/thinking-in-react.html
 http://teropa.info/blog/2015/09/10/full-stack-redux-tutorial.html#unit-testing-support
 https://egghead.io/series/how-to-write-an-open-source-javascript-library
+https://christianalfoni.github.io/react-webpack-cookbook/index.html
 

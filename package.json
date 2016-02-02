@@ -2,8 +2,10 @@
   "name": "coach_scheduler",
   "version": "0.1.0",
   "description": "",
+  "main": "server/app.js",
   "scripts": {
     "start": "node ./server/bin/www",
+    "postinstall": "webpack --config ./webpack.config.production.js --progress --colors",
     "test": "mocha --timeout 5000 --compilers js:babel-core/register --require ./test/test_helper.js 'test/**/*.@(js|jsx)'",
     "test:watch": "npm run test -- --watch"
   },
