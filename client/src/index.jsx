@@ -122,7 +122,7 @@ class App extends React.Component{
 
 	// data fetching
 	fetchCoaches(cb){
-		var coachPromise = axios.get('http://localhost:3000/api/coaches');
+		var coachPromise = axios.get('/api/coaches');
 		coachPromise.then(function(res){
 			console.log('getCoaches returned '+ res.data.status);
 			cb(res.data.coaches);
@@ -130,7 +130,7 @@ class App extends React.Component{
 	}
 
 	fetchCoach(coachId, cb){
-		var coachPromise = axios.get(`http://localhost:3000/api/coach/${coachId}`);
+		var coachPromise = axios.get(`/api/coach/${coachId}`);
 		coachPromise.then(function(res){
 			console.log('getCoaches returned '+ res.data.status);
 			cb(res.data.coach);
