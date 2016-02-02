@@ -24,14 +24,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 //development middleware 
-if(app.get('env') == 'development') {
+//if(app.get('env') == 'development') {
 	app.use(require('webpack-dev-middleware')(compiler, {
 	  noInfo: false,
 	  publicPath: config.output.publicPath
 	}));
 	app.use(require('webpack-hot-middleware')(compiler));
   //app.use(errorhandler());
-} 
+//} 
 // else 
 // {
   // returns a Compiler instance
