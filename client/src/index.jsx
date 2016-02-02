@@ -32,44 +32,38 @@ class App extends React.Component{
 		this.updateUserWithAppointments = this.updateUserWithAppointments.bind(this);
 		this.rescheduleAppointment = this.rescheduleAppointment.bind(this);
 	}
-	updateAuth(loggedIn) {
-	    this.setState({
-	      loggedIn: loggedIn
-	    })
-	}
-	componentWillReceiveProps(props) {
-		console.log('App willReceiveProps', props, this.state);
-		if(this.state.selectedCoachId != props.params.coachId){
-			//refresh coach data
-			this.fetchCoach(props.params.coachId, (coach)=>{
-				console.log('got coach ' + coach.username);
-				this.setState({selectedCoach: coach});
-			});
-		}
-		this.setState({selectedCoachId: props.params.coachId});
-	}
+	
 
+	//1: happens once, immediately before render
 	componentWillMount() {
 		console.log('App.componentWillMount', this.props.params)
 		this.setState({selectedCoachId: this.props.params.coachId});
 		auth.onChange = this.updateAuth;
     	auth.login();
 	}
-	componentDidMount() {
-		console.log('App.componentDidMount');
 
-		this.fetchCoaches((coaches)=>{
-			console.log('got coaches ' +coaches.length);
-			this.setState({coaches: coaches});
-		});
-	
-		this.fetchCoach(this.state.selectedCoachId, (coach)=>{
-			console.log('got coach ' + coach.username);
-			this.setState({selectedCoach: coach});
-		});
-		
-		this.state.user = auth.getUser();
+	//2: on receiving new props, doesn't fire on iniital render
+	// happens before render
+	// old props still in this.props
+	// calling this.setState will not cause another render
+	componentWillReceiveProps(newProps) {
+		console.log('App willReceiveProps', newProps, this.state);
+
+		if(this.state.selectedCoachId != newProps.params.coachId
+			&& newProps.params.coachId != undefined){
+			this.setState({selectedCoachId: newProps.params.coachId});
+			//refresh coach data
+			this.fetchCoach(newProps.params.coachId, (coach)=>{
+				console.log('got coach ' + coach.username);
+				this.setState({selectedCoach: coach});
+			});
+		}
 	}
+	
+	//3: componentWillUpdate: Invoked immediately before rendering when new props or state are being received. This method is not called for the initial render.
+	// Use this as an opportunity to perform preparation before an update occurs.
+
+	//4: 
 	render() {
 		console.log('App-render', this.props, this.state);
 		return (
@@ -89,7 +83,9 @@ class App extends React.Component{
 							coach: this.state.selectedCoach,
 							coaches: this.state.coaches, 
 							makeAppointment: this.makeAppointment, 
-							onLogin: this.didLoginWithUser})} 
+							onLogin: this.didLoginWithUser,
+							dateMode: this.props.params.dateMode
+							})} 
 					</div>
 
 				</div>
@@ -97,6 +93,34 @@ class App extends React.Component{
 		);
 	}
 
+	//5: componentDidUpdate: Invoked immediately after the component's updates are flushed to the DOM. This method is not called for the initial render.
+	// Use this as an opportunity to operate on the DOM when the component has been updated.
+
+	//6: after render, after child renders.  good place for AJAX
+	componentDidMount() {
+		console.log('App.componentDidMount');
+
+		this.fetchCoaches((coaches)=>{
+			console.log('got coaches ' +coaches.length);
+			this.setState({coaches: coaches});
+		});
+	
+		if(this.state.selectedCoachId != undefined) {
+			this.fetchCoach(this.state.selectedCoachId, (coach)=>{
+				console.log('got coach ' + coach.username);
+				this.setState({selectedCoach: coach});
+			});
+		}
+		//this.state.user = auth.getUser();
+	}
+
+	
+	//7: componentWillUnmount: Invoked immediately before a component is unmounted from the DOM.
+	// Perform any necessary cleanup in this method, such as invalidating timers or cleaning up any DOM elements that were created in componentDidMount.
+
+
+
+	// data fetching
 	fetchCoaches(cb){
 		var coachPromise = axios.get('http://localhost:3000/api/coaches');
 		coachPromise.then(function(res){
@@ -106,13 +130,15 @@ class App extends React.Component{
 	}
 
 	fetchCoach(coachId, cb){
-		var coachPromise = axios.get(`http://localhost:3000/api/coaches/${coachId}`);
+		var coachPromise = axios.get(`http://localhost:3000/api/coach/${coachId}`);
 		coachPromise.then(function(res){
 			console.log('getCoaches returned '+ res.data.status);
 			cb(res.data.coach);
 		}.bind(this));
 	}
 
+
+	//Appointment scheduling:
 	//called from calendar component, user clicked a time slot
 	makeAppointment(desiredStart) {
 		console.log('makeAppointment', desiredStart);
@@ -249,6 +275,14 @@ class App extends React.Component{
 		this.setState({user: user});
 	}
 
+
+	//auth callbacks
+	updateAuth(loggedIn) {
+	    this.setState({
+	      loggedIn: loggedIn
+	    })
+	}
+	
 	didLoginWithUser(user) {
 		console.log('App.didLoginWithUser', user);
 		this.setState({user:user});
@@ -257,6 +291,9 @@ class App extends React.Component{
 
 
 class CoachAvailability extends React.Component{
+	componentWillReceiveProps(props) {
+		console.log('CoachAvailability willReceiveProps', props);
+	}
 	render() {
 		console.log('CoachAvailability-render', this.props.params);
 		return (
@@ -265,7 +302,13 @@ class CoachAvailability extends React.Component{
 					<CoachList coachId={this.props.coachId} coaches={this.props.coaches} />
 				</div>
 				<div className='ten wide column'>
-					<Calendar user={this.props.user} coachId={this.props.coachId} coach={this.props.coach} coaches={this.props.coaches} makeAppointment={this.props.makeAppointment}/>
+					<Calendar user={this.props.user} 
+						coachId={this.props.coachId} 
+						coach={this.props.coach} 
+						coaches={this.props.coaches} 
+						makeAppointment={this.props.makeAppointment}
+						dateMode={this.props.dateMode}
+						/>
 				</div>
 			</div>
 		);
@@ -290,7 +333,7 @@ ReactDOM.render((
       <Route path="login" component={Login} />
       <Route path="logout" component={Logout} />
  	  <Route path="coach/:coachId/bio" component={CoachBios}/>
-	  <Route path="coach/:coachId/sched" component={CoachAvailability}/>
+	  <Route path="coach/:coachId/sched(/:dateMode)" component={CoachAvailability}/>
 	  <Route path="me" component={Appointments}/>
     </Route>
   </Router>

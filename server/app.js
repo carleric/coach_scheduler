@@ -1,5 +1,6 @@
 var path = require('path');
 var express = require('express');
+var errorhandler = require('errorhandler')
 var session = require('express-session');
 var webpack = require('webpack');
 var config = require('../webpack.config.dev');
@@ -29,6 +30,7 @@ if(app.get('env') == 'development') {
 	  publicPath: config.output.publicPath
 	}));
 	app.use(require('webpack-hot-middleware')(compiler));
+  //app.use(errorhandler());
 }
 
 //static files
@@ -89,7 +91,7 @@ app.post('/login', function(req, res, next) {
   debugger;
   console.log(`login with user=${req.body.username} pass=${req.body.password}`);
   passport.authenticate('local', function(err, user, info) {
-    console.log("authenticate callback err="+err+" user="+user+" info="+info);
+    //console.log("authenticate callback err="+err+" user="+user+" info="+info);
     if (err) { return next(err); }
     if (!user) { 
       req.logout();

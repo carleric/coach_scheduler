@@ -24,25 +24,25 @@ const users = [
         password: 'bar', 
         images:  {medium: '/images/molly.png'},
         in_office:  {events: availabilityEvents, color: colors[1]} 
-        
     }, 
     {
         username:'Elyse Zip', 
-        type: 'client', 
+        type: 'coach', 
         password: 'zip', 
         images:  {medium: '/images/elyse.png'},
-        in_office: {events: [], color: colors[2]},
-
-        
+        in_office: {events: availabilityEvents, color: colors[2]}
     },
     {
         username:'Joe', 
         type: 'client', 
         password: 'joe', 
-        images:  {medium: '/images/matthew.png'},
-        in_office: {events: [], color: colors[2]}
-
-        
+        images:  {medium: '/images/matthew.png'}
+    },
+    {
+        username:'Bob', 
+        type: 'client', 
+        password: 'bob', 
+        images:  {medium: '/images/matthew.png'}
     }    
 ];
 
@@ -53,13 +53,13 @@ const coaches = _.cloneDeep(_.filter(users, function(user) {
 }));
 
 _.each(users, function(user) {
-    
-    user.bio = user.username + bio;
-    user.in_office.events = user.in_office.events.map(function(event) {
-        event.title = user.name;
-        return event;
-    });
-    
+    if(user.type == 'coach') {
+        user.bio = user.username + bio;
+        user.in_office.events = user.in_office.events.map(function(event) {
+            event.title = user.name;
+            return event;
+        });
+    }
 });
 
 

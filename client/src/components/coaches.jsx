@@ -33,7 +33,7 @@ var itemStyle = {
 		//console.log('coachlist-didMount', this.props);
 	}
 	componentWillReceiveProps(nextProps) {
-		console.log('coaches-willReceiveProps', nextProps);
+		console.log('CoachList.willReceiveProps', nextProps);
 	}
 }
 
@@ -45,7 +45,7 @@ class CoachRow extends React.Component {
 		//console.log('coachrow-didMount', this.props);
 	}
 	componentWillReceiveProps(nextProps) {
-		console.log('coachrow-willReceiveProps', nextProps);
+		//console.log('coachrow-willReceiveProps', nextProps);
 	}
 	render() {
 		itemStyle.backgroundColor = this.props.coach.in_office.color;
@@ -80,7 +80,7 @@ class CoachBios extends React.Component {
 	}
 	render(){
 		const coach = this.getCoach(this.props.coachId);
-		console.log('CoachBios render', `coachId=${coach}`);
+		console.log('CoachBios render', `coach=${coach.username}`);
 		if(coach == undefined) return (<div/>);
 		return (
 			<div className='ui grid'>

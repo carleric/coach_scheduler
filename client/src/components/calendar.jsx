@@ -61,6 +61,13 @@ class Calendar extends React.Component {
 		});
 		$(calendar).fullCalendar('addEventSource', this.getAvailabilityForSelectedCoach());
 		$(calendar).fullCalendar('addEventSource', this.props.user.appointments);
+
+		//change to month or date if set in props
+	    if(this.props.dateMode) {
+	    	console.log('navigating calendar to date ' + this.props.dateMode);
+	    	$(calendar).fullCalendar('gotoDate', this.props.dateMode);
+	    	$(calendar).fullCalendar('changeView', 'agendaDay');
+	    } 
 	}
 
 	componentWillUnmount() {
@@ -95,20 +102,22 @@ class Calendar extends React.Component {
 		}
 	}
 
-	componentWillReceiveProps(nextProps) {
-		console.log('calendar-willReceiveProps', this.props.coachId);
-	}
-
 	componentDidUpdate (prevProps) {
 	    // const oldCoachId = prevProps ? prevProps.coachId : null;
 	    const newCoachId = this.props.coachId;
-	    console.log('calendar-didUpdate', this.props.coachId);
+	    console.log('calendar-didUpdate', this.props);
 
 	    $(calendar).fullCalendar('removeEvents');
 	    $(calendar).fullCalendar('addEventSource', this.getAvailabilityForSelectedCoach());
 	    $(calendar).fullCalendar('addEventSource', this.props.user.appointments);
 	    $(calendar).fullCalendar('rerenderEvents');
 
+	    //change to month or date if set in props
+	    if(this.props.dateMode) {
+	    	console.log('navigating calendar to date ' + this.props.dateMode);
+	    	$(calendar).fullCalendar('gotoDate', this.props.dateMode);
+	    	$(calendar).fullCalendar('changeView', 'agendaDay');
+	    } 
 	}
 
 	getAvailabilityForSelectedCoach(){

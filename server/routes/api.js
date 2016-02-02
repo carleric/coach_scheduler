@@ -15,30 +15,35 @@ router.get('/coaches', function(req, res) {
 
   User
     .find({type: 'coach'})
-    //.lean()
     .exec(function(err, coaches){
-        if(err) {console.log(err); return;}
-        console.log('sending response');
+        if(err) return errorHandler(err, res);
+        console.log('get /coaches: sending response');
         res.send({status:'OK', coaches: coaches});
   }); 
  
 });
 
-router.get('/coaches/:coachId', function(req, res) {
+router.get('/coach/:coachId', function(req, res) {
   var coachId = req.params.coachId;
   User
     .findById(coachId)
     //.populate('appointments.events')
     .lean()
     .exec(function(err, coach){
-        if(err) {console.log(err); return;}
+        //if(err) return errorHandler(err, res);
+        console.log('/coaches/:coachId =>' + coach);
+        if(err || coach == null || coach == undefined) {
+          res.status(500).send({error: 'not found'});
+          return;
+        }
          Appointment
            .find({coach: coachId})
            .exec(function(err, appointments){
-            var availability = User.getAvailability(coach.in_office, appointments);
-            coach.appointments.events = appointments;
-            coach.availability = availability;
-            res.send({status:'OK', coach: coach});
+              //if(err) return errorHandler(err, res);
+              var availability = User.getAvailability(coach.in_office, appointments);
+              coach.appointments.events = appointments;
+              coach.availability = availability;
+              res.send({status:'OK', coach: coach});
           });
   }); 
  
@@ -46,10 +51,10 @@ router.get('/coaches/:coachId', function(req, res) {
 
 //new appointment
 router.post('/appointments', function(req, res) { 
-
+  console.log('POST to /api/appointments.'+req.body.client);
   var appointment = new Appointment(req.body);
   appointment.save(function(err){
-  	if(err) {console.log(err); return;}
+   if(err) return errorHandler(err, res);
 
   	console.log('new appointment saved');
   	res.send({status: 'OK', appointment: appointment})
@@ -65,7 +70,7 @@ router.put('/appointments/:appointmentId', function(req, res) {
 
 	Appointment
     .findById(appointmentId, function(err, appointment){
-      if(err) {console.log(err); return;}
+      if(err) return errorHandler(err, res);
       console.log('retrieved appointment '+appointment._id);
       appointment.start = req.body.start;
       appointment.end = req.body.end;
@@ -73,7 +78,7 @@ router.put('/appointments/:appointmentId', function(req, res) {
       appointment.client = req.body.client;
       appointment.coach = req.body.coach;
       appointment.save(function(err){
-        if(err) {console.log(err); return;}
+        if(err) return errorHandler(err, res);
 
         console.log('appointment updated');
         res.send({status:'OK', appointment: appointment});
@@ -84,6 +89,10 @@ router.put('/appointments/:appointmentId', function(req, res) {
 }); 
 
 
- 
+var errorHandler = function(err, res) {
+  console.log(err);
+  res.status(500).send({error: err});
+  return;
+}
 
 module.exports = router;

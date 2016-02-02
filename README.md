@@ -15,10 +15,8 @@ web app for coordinating appointments between a coach and a client.  this is a d
 
 # to do:
 - conflict detection in server when making appointment (in case where client data was stale)
-- screen to list your appointments
 - continuous integration
 - redux state
-- client user types shouldn't need in_office attribute in test data.  find bug.
 
 #references
 https://facebook.github.io/react/docs/thinking-in-react.html
