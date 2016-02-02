@@ -26,12 +26,27 @@ app.use(passport.session());
 //development middleware 
 if(app.get('env') == 'development') {
 	app.use(require('webpack-dev-middleware')(compiler, {
-	  noInfo: true,
+	  noInfo: false,
 	  publicPath: config.output.publicPath
 	}));
 	app.use(require('webpack-hot-middleware')(compiler));
   //app.use(errorhandler());
-}
+} 
+// else 
+// {
+  // returns a Compiler instance
+// var compiler = webpack({
+//     // configuration
+//     noInfo: false,
+//     publicPath: config.output.publicPath
+// });
+
+// compiler.run(function(err, stats) {
+//     if(err){
+//       console.log(err);
+//     }
+// });
+// }
 
 //static files
 app.use(express.static('./client/public'));
