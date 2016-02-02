@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
-if(app.get('env') == 'development') {
-	mongoose.connect('mongodb://localhost/coach_scheduler');
-} else {
+if(process.env.PROD) {
 	mongoose.connect('mongodb://coach_scheduler_user:csucsu@ds055555.mongolab.com:55555/coach_scheduler');
+} else {
+	mongoose.connect('mongodb://localhost/coach_scheduler');
 }
