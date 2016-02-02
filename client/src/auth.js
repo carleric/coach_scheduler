@@ -64,7 +64,7 @@ function pretendRequest(email, pass, cb) {
 }
 
 function loginRequest(user, pass, cb) {
-  var authPromise = axios.post('http://localhost:3000/login', 
+  var authPromise = axios.post('/login', 
     {
       username: user,
       password: pass
@@ -75,7 +75,7 @@ function loginRequest(user, pass, cb) {
 }
 
 function logoutRequest(cb) {
-  var authPromise = axios.get('http://localhost:3000/logout');
+  var authPromise = axios.get('/logout');
     authPromise.then(function(res){
       cb(res.data);
     });
