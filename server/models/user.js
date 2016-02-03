@@ -50,13 +50,6 @@ UserSchema.pre('save', function(next) {
     });
 });
 
-// UserSchema.pre('find', function(next){
-//     var user = this;
-
-//     user.availability = user.getAvailability();
-
-//     next();
-// });
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
     bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
@@ -92,11 +85,11 @@ UserSchema.static('getAvailability', function(in_office, appointments) {
    
 });
 
-  function insert (arr, index, insertObject) {
+function insert (arr, index, insertObject) {
     var before = _.slice(arr, 0, index)
     var after = _.slice(arr, index)
     return _.flatten([before, insertObject, after])
-  }
+}
 
 //if slotB occurs within slotA return array of remaining time slots from slotA
 UserSchema.static('subtractTimeSlots', function(slotA, slotB) {
