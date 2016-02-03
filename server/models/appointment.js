@@ -3,6 +3,7 @@ var db = require('../db.js');
 
 var AppointmentSchema = mongoose.Schema({
     title: String,
+    description: String,
     start: Date,
     end: Date,
     client: {type: mongoose.Schema.Types.ObjectId, required:true, ref: 'User'},

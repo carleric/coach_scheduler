@@ -183,7 +183,7 @@ class App extends React.Component{
   							//id is sent to server to update existing record
   							existingAppointmentThisMonth._id, 
   							//attributes from this will be copied
-  							this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)),  
+  							this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart), this.generateDescripton(coach, desiredStart)),  
   							//callback: do this when server replies with updated appointment
   							(_appointment, err)=>{
   								//replace old appointment with new one
@@ -205,7 +205,7 @@ class App extends React.Component{
 
 		//no other appointments have been made this month, make a new one
 		else {
-			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart)), (_appointment, err)=>{
+			this.makeNewAppointment(this.generateNewAppointment(this.state.user._id, coach._id, desiredStart, desiredEnd, this.generateTitle(coach, desiredStart), this.generateDescripton(coach, desiredStart)), (_appointment, err)=>{
 				if(err) {
 					this.showPrompt(
 						'Appointment conflict', 
@@ -267,9 +267,14 @@ class App extends React.Component{
 		return `${moment(desiredStart).format('MMMM')} call with ${coach.username}`;
 	}
 
-	generateNewAppointment(clientId, coachId, desiredStart, desiredEnd, title){
+	generateDescripton(coach, desiredStart) {
+		return `Call with ${coach.username} on ${moment(desiredStart).format('MMMM Do YYYY')}`;
+	}
+
+	generateNewAppointment(clientId, coachId, desiredStart, desiredEnd, title, description){
 		return {
 				title: title, 
+				description: description,
 				start: desiredStart, 
 				end: desiredEnd, 
 				client: clientId, 

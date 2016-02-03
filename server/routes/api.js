@@ -96,6 +96,7 @@ router.put('/appointments/:appointmentId', function(req, res) {
               appointment.start = req.body.start;
               appointment.end = req.body.end;
               appointment.title = req.body.title;
+              appointment.description = req.body.description;
               appointment.client = req.body.client;
               appointment.coach = req.body.coach;
               appointment.save(function(err){
