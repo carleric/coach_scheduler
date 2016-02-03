@@ -174,8 +174,9 @@ class Appointments extends React.Component {
 
 		function showSuccess(){
 			if(!hasShownSuccess && $('.message').transition('is hidden')){
+				console.log('showing success');
 				$('.message').transition({animation:'scale'});
-				hasShown = true;
+				hasShownSuccess = true;
 			}
 		}
 		
