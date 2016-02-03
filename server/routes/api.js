@@ -39,7 +39,8 @@ router.get('/coach/:coachId', function(req, res) {
            .find({coach: coachId})
            .exec(function(err, appointments){
               if(err) return errorHandler(err, res);
-              var availability = User.getAvailability(coach.in_office, appointments);
+              var availability = User.getAvailability(coach.in_office.events, appointments);
+              availability.color = coach.in_office.color;
               coach.appointments.events = appointments;
               coach.availability = availability;
               res.send({status:'OK', coach: coach});

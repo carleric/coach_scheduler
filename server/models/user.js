@@ -69,31 +69,27 @@ UserSchema.methods.comparePassword = function(candidatePassword, cb) {
 UserSchema.static('getAvailability', function(in_office, appointments) {
 
     //copy of in_office slots, to be modified in-place if an intersection is found with an appointment
-    var availability = _.cloneDeep(in_office.events);
+    var availability = _.cloneDeep(in_office);
 
-    //fetch appointments for this coach
-    //Appointment.find({coach: coachJSON._id}, function(err, appointments){
+    //check each appointment against all availability slots for intersections
+    _.each(appointments, function(appointment){
+        _.each(availability, function(availability_slot, index){
+            var subtraction = User.subtractTimeSlots(availability_slot, appointment);
+            if(subtraction != -1) {
+                debugger;
+                //modify the availability array with new availability and go to next appointment
+                //var modifiedAvailability = _.pullAt(availability, index);
+                //insert(modifiedAvailability, index, subtraction);
+                //availability = modifiedAvailability;
+                availability.splice(index, 1);
+                availability = insert(availability, index, subtraction);
+                return false; //break out of inner each loop 
+            }
+        });
+    })
 
-        
-        //check each appointment against all availability slots for intersections
-        _.each(appointments, function(appointment){
-            _.each(availability, function(availability_slot, index){
-                var subtraction = User.subtractTimeSlots(availability_slot, appointment);
-                if(subtraction != -1) {
-                    debugger;
-                    //modify the availability array with new availability and go to next appointment
-                    //var modifiedAvailability = _.pullAt(availability, index);
-                    //insert(modifiedAvailability, index, subtraction);
-                    //availability = modifiedAvailability;
-                    availability.splice(index, 1);
-                    availability = insert(availability, index, subtraction);
-                    return false; //break out of inner each loop 
-                }
-            });
-        })
-
-        return {events: availability, color: in_office.color};
-    //})
+    return {events: availability, color: in_office.color};
+   
 });
 
   function insert (arr, index, insertObject) {
@@ -107,6 +103,9 @@ UserSchema.static('subtractTimeSlots', function(slotA, slotB) {
     if(moment(slotB.start).isSameOrAfter(slotA.start) 
         && moment(slotB.end).isSameOrBefore(slotA.end)) 
     {
+        if(moment(slotB.start).isSame(slotA.start) && moment(slotB.end).isSame(slotA.end)){
+            return [];
+        }
         if(moment(slotB.start).isSame(slotA.start)){
             var modifiedSlotA = _.cloneDeep(slotA);
             modifiedSlotA.start = slotB.end;
@@ -133,20 +132,20 @@ var User = mongoose.model('User', UserSchema);
 
 
 //repopulate db with test users
-var users = require('../test_data').users;
-_.each(users, function(user){
-    console.log(`creating test user ${user.username}`);
-    var removal = User.remove();
-    removal.then(function(err){
-        User.create(user, function(err, _user){
-            if(err) {
-                console.log(err);
-                return;
-            }
-            console.log('user created');
-        });
-    })
-});
+// var users = require('../test_data').users;
+// _.each(users, function(user){
+//     console.log(`creating test user ${user.username}`);
+//     var removal = User.remove();
+//     removal.then(function(err){
+//         User.create(user, function(err, _user){
+//             if(err) {
+//                 console.log(err);
+//                 return;
+//             }
+//             console.log('user created');
+//         });
+//     })
+// });
 
 
 module.exports.User = User;
