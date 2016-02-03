@@ -1,7 +1,7 @@
 # coach_scheduler
 Web app for coordinating appointments between a coach and a client.  This is a development exercise to demonstrate abilities and to learn something new.
 
-# try it out
+## try it out
 A demo of the app is now live [here](https://arcane-falls-25124.herokuapp.com)  Use username:Joe pass:joe, or username:Bob pass:bob
 
 ## problem
